@@ -1,0 +1,3 @@
+packages:
+  - package: andrewcstewart/uaparser
+    version: 0.1.0

@@ -1,0 +1,4 @@
+packages:
+  - package: andrewcstewart/uaparser
+    version: 0.1.0
+sha1_hash: f0f4dec8ba721073d092c0127f543be671ac5d6d

@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: mind_diagnostics
+    database: mind-diagnostics-414622  
+    schema: md  
+    tables:
+      - name: log_visitor
+      - name: log_tests
+      - name: better_help_full

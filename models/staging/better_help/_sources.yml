@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: better_help
+    database: mind-diagnostics-414622  
+    schema: md  
+    tables:
+      - name: better_help_full
