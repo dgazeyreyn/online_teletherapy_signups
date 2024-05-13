@@ -1,14 +1,58 @@
 with
+    visitors_bot_handling as (
+        select
+            log_visitor.id as visitors_id,
+            log_visitor.ip as visitors_ip,
+            log_visitor.ua.os.name as visitors_os_name,
+            log_visitor.geo as visitors_geo,
+            log_visitor.mduid as visitors_mduid,
+            log_visitor.inbound_params as visitors_inbound_params,
+            contains_substr(log_visitor.inbound_params, 'gclid') as visitors_gclid_flag
+        from {{ source("mind_diagnostics", "log_visitor") }}
+        join
+            (
+                select ip, count(distinct mduid) as mduid_count
+                from {{ source("mind_diagnostics", "log_visitor") }}
+                group by ip
+                having count(distinct mduid) = 1
+            ) one_to_one_mduid_ip
+            on log_visitor.ip = one_to_one_mduid_ip.ip
+    ),
+    visitors_tests as (
+        select
+            visitors_bot_handling.*,
+            case
+                when distinct_ip_addresses.ip_address is null then false else true
+            end as test_taken
+        from visitors_bot_handling
+        left join
+            (
+                select distinct ip_address as ip_address
+                from {{ source("mind_diagnostics", "log_tests") }}
+            ) distinct_ip_addresses
+            on visitors_bot_handling.visitors_ip = distinct_ip_addresses.ip_address
+    ),
+    visitors_tests_type_2 as (
+        select *
+        from visitors_tests
+        where
+            visitors_tests.visitors_gclid_flag is true
+            or (
+                visitors_tests.visitors_gclid_flag is false
+                and visitors_tests.test_taken is true
+            )
+    ),
     signups as (
         select visitors_tests_type_2.*, deduped_signups.goal_name
-        from mind-diagnostics-414622.dbt_dreynolds.visitors_tests_type_2
+        from visitors_tests_type_2
         left join
             (
                 select distinct stat_affiliate_info5, goal_name
-                from mind-diagnostics-414622.md.better_help_full
+                from {{ source("better_help", "better_help_full") }}
                 where goal_name = 'User Signup'
             ) as deduped_signups
-            on deduped_signups.stat_affiliate_info5 = visitors_tests_type_2.visitors_mduid
+            on deduped_signups.stat_affiliate_info5
+            = visitors_tests_type_2.visitors_mduid
     ),
     strip_left as (
         select
@@ -62,7 +106,7 @@ with
         from right_strip
     ),
     us as (
-        select distinct
+        select
             visitors_mduid,
             goal_name,
             visitors_region,
@@ -71,4 +115,5 @@ with
         from final_strip
         where visitors_country_name = 'United States'
     )
-    select * from us
+select *
+from us
