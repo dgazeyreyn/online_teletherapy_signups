@@ -1,4 +1,3 @@
-
 with
     visitors as (select * from {{ ref("stg_mind_diagnostics__visitors") }}),
 
@@ -32,9 +31,10 @@ with
             visitors.visitors_id,
             visitors.visitors_ip,
             visitors.visitors_os_name,
-            visitors.visitors_geo,
+            visitors.visitors_region,
+            visitors.visitors_country_name,
             visitors.visitors_mduid,
-            visitors.visitors_inbound_params,
+            visitors.visitors_browser,
             visitors.visitors_gclid_flag
 
         from visitors
@@ -47,9 +47,7 @@ with
         select
             visitors_bot_handling.*,
             case
-                when distinct_test_ips.tests_ip is null
-                then false
-                else true
+                when distinct_test_ips.tests_ip is null then false else true
             end as test_taken
 
         from visitors_bot_handling
@@ -84,64 +82,6 @@ with
             on deduped_signups.goals_mduid = visitors_tests_type_2.visitors_mduid
     ),
 
-    strip_left as (
-
-        select
-
-            signups.*,
-            -- capturing the positions (via strpos function) of the substrings in geo corresponding to 'region', 'country_name'
-            -- stripping everything to the left to get something that looks like this for 'region' (region"=>"california", )
-            substr(visitors_geo, (strpos(visitors_geo, 'region'))) as region_strip_left,
-            substr(
-                visitors_geo, (strpos(visitors_geo, 'country_name'))
-            ) as country_strip_left,
-            -- doing the exact same thing for the inbound_params field in order to 'strip' out 'browser'
-            substr(
-                visitors_inbound_params, (strpos(visitors_inbound_params, 'browser'))
-            ) as browser_strip_left
-
-        from signups
-    ),
-
-    right_strip as (
-
-        select
-
-            strip_left.*,
-            -- further splitting on ',' and specifying an offset of 0 in order to remove everything to the right of 'region'
-            -- here is an example of what that looks like for 'region' (region=>california)
-            -- doing same for both 'country_name' and 'browser' fields
-            replace(
-                split(region_strip_left, ',')[offset (0)], '"', ''
-            ) as region_strip_right,
-            replace(
-                split(country_strip_left, ',')[offset (0)], '"', ''
-            ) as country_strip_right,
-            replace(
-                split(browser_strip_left, ',')[offset (0)], '"', ''
-            ) as browser_strip_right
-
-        from strip_left
-    ),
-
-    final_strip as (
-
-        select
-
-            right_strip.*,
-            split(right_strip.region_strip_right, '=>')[
-                safe_offset(1)
-            ] as visitors_region,
-            split(right_strip.country_strip_right, '=>')[
-                safe_offset(1)
-            ] as visitors_country_name,
-            split(right_strip.browser_strip_right, '=>')[
-                safe_offset(1)
-            ] as visitors_browser
-
-        from right_strip
-    ),
-
     us as (
 
         select
@@ -152,7 +92,7 @@ with
             visitors_browser,
             visitors_os_name
 
-        from final_strip
+        from signups
 
         where visitors_country_name = 'United States'
     )
