@@ -64,9 +64,13 @@ with
         from visitors_tests
 
         where
-            visitors_tests.visitors_gclid_flag is false
-            and visitors_tests.test_taken is false
+            visitors_tests.visitors_gclid_flag is true
+            or (
+                visitors_tests.visitors_gclid_flag is false
+                and visitors_tests.test_taken is true
+            )
     ),
+
     trial_converted as (
 
         select visitors_tests_type_2.*, deduped_trial_converted.goal_name
