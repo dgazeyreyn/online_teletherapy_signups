@@ -1,0 +1,16 @@
+version: 2
+
+models:
+  - name: stg_mind_diagnostics__visitors
+    columns: 
+      - name: visitors_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_mind_diagnostics__tests
+    columns:
+      - name: tests_id
+        tests:
+          - unique
+          - not_null
