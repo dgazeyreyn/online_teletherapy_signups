@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: mind_diagnostics
+    description: a clone of a BigQuery datawarehouse
+    database: mind-diagnostics-414622  
+    schema: md  
+    tables:
+      - name: log_visitor
+        description: the raw visitors data
+      - name: log_tests
+        description: the raw tests data
+      - name: better_help_full
+        description: the raw goals data
