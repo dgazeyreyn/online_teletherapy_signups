@@ -2,13 +2,120 @@ version: 2
 
 sources:
   - name: mind_diagnostics
-    description: a clone of a BigQuery datawarehouse
-    database: mind-diagnostics-414622  
-    schema: md  
+    description: BigQuery data warehouse environment created in order to store log_visitor and log_tests tables below
+    database: mind-diagnostics-414622
+    schema: md
     tables:
       - name: log_visitor
-        description: the raw visitors data
+        description: Sourced from Mind Diagnostics's PostgreSQL DB, written into by our Rails app, and subsequently loaded into BigQuery data warehouse referenced above. When a visitor first visits the site we check for the existence of a cookie called “mdt”. If no such cookie exists then we create a LogVisitor record.
+        columns:
+          - name: id
+            description: '{{ doc("log_visitor") }}'
+            tests:
+              - unique
+              - not_null
+          - name: ip
+            description: '{{ doc("log_visitor") }}'
+          - name: user_agent
+            description: '{{ doc("log_visitor") }}'
+          - name: geo
+            description: '{{ doc("log_visitor") }}'
+          - name: mduid
+            description: '{{ doc("log_visitor") }}'
+            tests:
+              - unique
+              - not_null
+          - name: created_at
+            description: '{{ doc("log_visitor") }}'
+          - name: updated_at
+            description: '{{ doc("log_visitor") }}'
+          - name: inbound_params
+            description: '{{ doc("log_visitor") }}'
+          - name: browser_name
+            description: '{{ doc("log_visitor") }}'
+          - name: browser_version
+            description: '{{ doc("log_visitor") }}'
+          - name: browser_major 
+            description: '{{ doc("log_visitor") }}'
+          - name: engine_name 
+            description: '{{ doc("log_visitor") }}'
+          - name: engine_version 
+            description: '{{ doc("log_visitor") }}'
+          - name: os_name 
+            description: '{{ doc("log_visitor") }}'
+          - name: os_version 
+            description: '{{ doc("log_visitor") }}'
+          - name: device_vendor 
+            description: '{{ doc("log_visitor") }}'
+          - name: device_model 
+            description: '{{ doc("log_visitor") }}'
+          - name: device_type 
+            description: '{{ doc("log_visitor") }}'
+          - name: arch 
+            description: '{{ doc("log_visitor") }}'
       - name: log_tests
-        description: the raw tests data
-      - name: better_help_full
-        description: the raw goals data
+        description: Sourced from Mind Diagnostics's PostgreSQL DB, written into by our Rails app, and subsequently loaded into BigQuery data warehouse referenced above. We log each test started, appending with additional data if completed.
+        columns:
+          - name: id
+            description: '{{ doc("log_tests") }}'
+            tests:
+              - unique
+              - not_null
+          - name: test_taken
+            description: '{{ doc("log_tests") }}'
+          - name: duration
+            description: '{{ doc("log_tests") }}'
+          - name: completed
+            description: '{{ doc("log_tests") }}'
+          - name: result
+            description: '{{ doc("log_tests") }}'
+          - name: ip_address
+            description: '{{ doc("log_tests") }}'
+          - name: user_agent
+            description: '{{ doc("log_tests") }}'
+          - name: channel
+            description: '{{ doc("log_tests") }}'
+          - name: geo
+            description: '{{ doc("log_tests") }}'
+          - name: created_at
+            description: '{{ doc("log_tests") }}'
+          - name: updated_at
+            description: '{{ doc("log_tests") }}'
+          - name: uniq_id
+            description: '{{ doc("log_tests") }}'
+          - name: city
+            description: '{{ doc("log_tests") }}'
+          - name: region
+            description: '{{ doc("log_tests") }}'
+          - name: region_code
+            description: '{{ doc("log_tests") }}'
+          - name: country
+            description: '{{ doc("log_tests") }}'
+          - name: country_name
+            description: '{{ doc("log_tests") }}'
+          - name: continent_code
+            description: '{{ doc("log_tests") }}'
+          - name: postal
+            description: '{{ doc("log_tests") }}'
+          - name: latitude
+            description: '{{ doc("log_tests") }}'
+          - name: longitude
+            description: '{{ doc("log_tests") }}'
+          - name: timezone
+            description: '{{ doc("log_tests") }}'
+          - name: utc_offset
+            description: '{{ doc("log_tests") }}'
+          - name: country_calling_code
+            description: '{{ doc("log_tests") }}'
+          - name: currency
+            description: '{{ doc("log_tests") }}'
+          - name: languages
+            description: '{{ doc("log_tests") }}'
+          - name: asn
+            description: '{{ doc("log_tests") }}'
+          - name: org
+            description: '{{ doc("log_tests") }}'
+          - name: test_taken_id
+            description: '{{ doc("log_tests") }}'
+          - name: site_id
+            description: '{{ doc("log_tests") }}'
