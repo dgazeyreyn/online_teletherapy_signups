@@ -10,23 +10,29 @@ sources:
         description: Sourced from HasOffers (aka Tune, https://www.tune.com/) and subsequently loaded into BigQuery data warehouse referenced above. When a user clicks out from our site over to BetterHelp and subsequently signs up we pass a number of data to them in addition to their own which we have access to.
         columns:
           - name: Stat_datetime
-            description: '{{ doc("better_help") }}'
+            description: Date/time that a User Signup or Trial Converted event occurred; IMPORTANT - Appears to be in EST and will need to be converted to UTC in order to be compatible with log_visitor and log_tests.
           - name: Goal_name
-            description: '{{ doc("better_help") }}'
+            description: Will be one of either `User Signup` or `Trial Converted`.
+            tests:
+              - accepted_values:
+                  values: ['User Signup', 'Trial Converted']
           - name: Country_name
-            description: '{{ doc("better_help") }}'
+            description: Self-explanatory
           - name: Stat_ad_id
-            description: '{{ doc("better_help") }}'
+            description: Unique ID for a user assigned by BetterHelp. Note that this unique ID will be duplicated across two rows for a user who both signs up and converts.
           - name: Stat_affiliate_info1
-            description: '{{ doc("better_help") }}'
+            description: '{{ doc("better_help_Stat_affiliate_info1") }}'
+            tests:
+              - accepted_values:
+                  values: ['fm', 'md', 'pm', 'rd']
           - name: Stat_affiliate_info2
-            description: '{{ doc("better_help") }}'
+            description: Will be either mobile_web, desktop_web, mobile_app, email.
           - name: Stat_affiliate_info3
-            description: '{{ doc("better_help") }}'
+            description: '{{ doc("better_help_Stat_affiliate_info3") }}'
           - name: Stat_affiliate_info4
-            description: '{{ doc("better_help") }}'
+            description: Records test that user came from (if from a results screen), blank otherwise; It’s possible that a user can come from Google Ads - and so have a gclid assigned - but signup via a listing page rather than a results page. In that scenario Stat.affiliate_info4 will be blank.
           - name: Stat_affiliate_info5
-            description: '{{ doc("better_help") }}'
+            description: MDUID
           - name: ConversionsMobile_affiliate_click_id
-            description: '{{ doc("better_help") }}'
+            description: GCLID (if available, and denotes Google Ads-derived traffic), otherwise blank (which denotes organic traffic).
             
