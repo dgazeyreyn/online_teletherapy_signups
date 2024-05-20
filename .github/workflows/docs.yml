@@ -1,0 +1,50 @@
+name: docs
+
+on:
+  push:
+    branches:
+      - main
+env:
+  DBT_PROFILES_DIR: ./
+  DBT_GOOGLE_PROJECT_DEV: ${{ secrets.DBT_GOOGLE_PROJECT_DEV }}
+  DBT_GOOGLE_BIGQUERY_DATASET_DEV: ${{ secrets.DBT_GOOGLE_BIGQUERY_DATASET_DEV }}
+  DBT_GOOGLE_BIGQUERY_KEYFILE_DEV: ./dbt-service-account.json
+
+jobs:
+  docs:
+    name: docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v1
+
+      - uses: actions/setup-python@v1
+        with:
+          python-version: "3.7.x"
+
+      - name: Authenticate using service account
+        run: 'echo "$KEYFILE" > ./dbt-service-account.json'
+        shell: bash
+        env:
+          KEYFILE: ${{secrets.DBT_GOOGLE_BIGQUERY_KEYFILE_DEV}}
+
+      - name: Install dependencies
+        run: |
+          pip install dbt-bigquery
+          dbt deps
+          ls
+      - name: run dbt test
+        run: |
+          dbt test
+      - name: build single html
+        run: |
+          dbt docs generate
+          python dbt-docs-spa.py
+      - name: Deploy to GitHub Pages
+        if: success()
+        uses: crazy-max/ghaction-github-pages@v3
+        with:
+          target_branch: gh-pages
+          build_dir: target
+        env:
+          GITHUB_TOKEN: ${{ secrets.PASSWORD }}
