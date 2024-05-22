@@ -1,17 +1,4 @@
-{% docs better_help_Stat_affiliate_info1 %}
-	
-This records the originating site/application where: 
-
-| Stat_affiliate_info1 | definition               |
-|----------------------|--------------------------|
-| md                   | Mind Diagnostics         |
-| pm                   | Pridemind                |
-| fm                   | Faithfulmind             |
-| rd                   | Relationship Diagnostics |
-
-{% enddocs %}
-
-{% docs better_help_Stat_affiliate_info3 %}
+{% docs bh_Stat_affiliate_info3 %}
 	
 The page or page element that a user clicked to get to BetterHelp. Can be: 
 

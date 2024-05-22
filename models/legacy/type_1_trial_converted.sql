@@ -3,16 +3,16 @@ with
         select
             log_visitor.id as visitors_id,
             log_visitor.ip as visitors_ip,
-            log_visitor.ua.os.name as visitors_os_name,
+            log_visitor.os_name as visitors_os_name,
             log_visitor.geo as visitors_geo,
             log_visitor.mduid as visitors_mduid,
             log_visitor.inbound_params as visitors_inbound_params,
             contains_substr(log_visitor.inbound_params, 'gclid') as visitors_gclid_flag
-        from {{ source("mind_diagnostics", "log_visitor") }}
+        from {{ source("md", "log_visitor") }}
         join
             (
                 select ip, count(distinct mduid) as mduid_count
-                from {{ source("mind_diagnostics", "log_visitor") }}
+                from {{ source("md", "log_visitor") }}
                 group by ip
                 having count(distinct mduid) = 1
             ) one_to_one_mduid_ip
@@ -28,7 +28,7 @@ with
         left join
             (
                 select distinct ip_address as ip_address
-                from {{ source("mind_diagnostics", "log_tests") }}
+                from {{ source("md", "log_tests") }}
             ) distinct_ip_addresses
             on visitors_bot_handling.visitors_ip = distinct_ip_addresses.ip_address
     ),
@@ -45,7 +45,7 @@ with
         left join
             (
                 select distinct stat_affiliate_info5, goal_name
-                from {{ source("better_help", "better_help_full") }}
+                from {{ source("bh", "goals") }}
                 where goal_name = 'Trial Converted'
             ) as deduped_trial_converted
             on deduped_trial_converted.stat_affiliate_info5

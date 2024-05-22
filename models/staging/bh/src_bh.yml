@@ -1,13 +1,13 @@
 version: 2
 
 sources:
-  - name: better_help
+  - name: bh
     description: BigQuery data warehouse environment created in order to store better_help_full table below
     database: mind-diagnostics-414622  
     schema: md  
     tables:
-      - name: better_help_full
-        description: Sourced from HasOffers (aka Tune, https://www.tune.com/) and subsequently loaded into BigQuery data warehouse referenced above. When a user clicks out from our site over to BetterHelp and subsequently signs up we pass a number of data to them in addition to their own which we have access to.
+      - name: goals
+        description: Sourced from HasOffers (aka Tune, https://www.tune.com/) and subsequently loaded into BigQuery data warehouse referenced above. When a user clicks out from our site over to BH and subsequently signs up we pass a number of data to them in addition to their own which we have access to.
         columns:
           - name: Stat_datetime
             description: Date/time that a User Signup or Trial Converted event occurred; IMPORTANT - Appears to be in EST and will need to be converted to UTC in order to be compatible with log_visitor and log_tests.
@@ -21,14 +21,13 @@ sources:
           - name: Stat_ad_id
             description: Unique ID for a user assigned by BetterHelp. Note that this unique ID will be duplicated across two rows for a user who both signs up and converts.
           - name: Stat_affiliate_info1
-            description: '{{ doc("better_help_Stat_affiliate_info1") }}'
             tests:
               - accepted_values:
                   values: ['fm', 'md', 'pm', 'rd']
           - name: Stat_affiliate_info2
             description: Will be either mobile_web, desktop_web, mobile_app, email.
           - name: Stat_affiliate_info3
-            description: '{{ doc("better_help_Stat_affiliate_info3") }}'
+            description: '{{ doc("bh_Stat_affiliate_info3") }}'
           - name: Stat_affiliate_info4
             description: Records test that user came from (if from a results screen), blank otherwise; It’s possible that a user can come from Google Ads - and so have a gclid assigned - but signup via a listing page rather than a results page. In that scenario Stat.affiliate_info4 will be blank.
           - name: Stat_affiliate_info5

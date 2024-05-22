@@ -1,13 +1,13 @@
 version: 2
 
 sources:
-  - name: mind_diagnostics
+  - name: md
     description: BigQuery data warehouse environment created in order to store log_visitor and log_tests tables below
     database: mind-diagnostics-414622
     schema: md
     tables:
       - name: log_visitor
-        description: Sourced from Mind Diagnostics's PostgreSQL DB, written into by our Rails app, and subsequently loaded into BigQuery data warehouse referenced above. When a visitor first visits the site we check for the existence of a cookie called “mdt”. If no such cookie exists then we create a LogVisitor record.
+        description: Sourced from MD's PostgreSQL DB, written into by our Rails app, and subsequently loaded into BigQuery data warehouse referenced above. When a visitor first visits the site we check for the existence of a cookie called “mdt”. If no such cookie exists then we create a LogVisitor record.
         columns:
           - name: id
             description: Unique to each row
@@ -21,7 +21,7 @@ sources:
           - name: geo
             description: We ping a 3rd party service with a user’s IP address which then returns the example Geo data you see here.
           - name: mduid
-            description: Anonymized Mind Diagnostics visitor id; unique to each row.
+            description: Anonymized MD visitor id; unique to each row.
             tests:
               - unique
               - not_null
@@ -54,7 +54,7 @@ sources:
           - name: arch 
             description: Parsed from user_agent above
       - name: log_tests
-        description: Sourced from Mind Diagnostics's PostgreSQL DB, written into by our Rails app, and subsequently loaded into BigQuery data warehouse referenced above. We log each test started, appending with additional data if completed.
+        description: Sourced from MD's PostgreSQL DB, written into by our Rails app, and subsequently loaded into BigQuery data warehouse referenced above. We log each test started, appending with additional data if completed.
         columns:
           - name: id
             description: Unique to each row.
@@ -118,4 +118,4 @@ sources:
           - name: test_taken_id
             description: Test number in our backend systems.
           - name: site_id
-            description: Site number corresponds to whether it is the main MD site (0), Relationshipdiagnostics, Faithfulmind, or Pridemind.
+            description: Site number corresponds to whether it is the main MD site (0), RD, FM, or PM.
