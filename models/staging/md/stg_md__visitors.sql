@@ -1,5 +1,5 @@
 with
-    source as (select * from {{ source("mind_diagnostics", "log_visitor") }}),
+    source as (select * from {{ source("md", "log_visitor") }}),
 
     visitors as (
 
@@ -7,7 +7,7 @@ with
 
             id as visitors_id,
             ip as visitors_ip,
-            ua.os.name as visitors_os_name,
+            os_name as visitors_os_name,
             split(
                 replace(
                     split(substr(geo, (strpos(geo, 'region'))), ',')[offset (0)],

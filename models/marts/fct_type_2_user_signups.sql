@@ -1,9 +1,9 @@
 with
-    visitors as (select * from {{ ref("stg_mind_diagnostics__visitors") }}),
+    visitors as (select * from {{ ref("stg_md__visitors") }}),
 
-    tests as (select * from {{ ref("stg_mind_diagnostics__tests") }}),
+    tests as (select * from {{ ref("stg_md__tests") }}),
 
-    goals as (select * from {{ ref("stg_better_help__goals") }}),
+    goals as (select * from {{ ref("stg_bh__goals") }}),
 
     one_2_one as (
 
