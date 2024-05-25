@@ -1,9 +1,22 @@
-with
-    visitors as (select * from {{ ref("stg_md__visitors") }}),
+with visitors as (
 
-    tests as (select * from {{ ref("stg_md__tests") }}),
+    select * from {{ ref("stg_md__visitors") }}
+    where visitors_country_name = 'United States'
+    
+    ),
 
-    goals as (select * from {{ ref("stg_bh__goals") }}),
+    tests as (
+
+        select * from {{ ref("stg_md__tests") }}
+        
+    ),
+
+    goals as (
+
+        select * from {{ ref("stg_bh__goals") }}
+        where goal_name = 'User Signup'
+        
+    ),
 
     one_2_one as (
 
@@ -16,13 +29,7 @@ with
 
     distinct_test_ips as (select distinct tests_ip as tests_ip from tests),
 
-    deduped_signups as (
-
-        select distinct goals_mduid, goal_name
-        from goals
-        where goal_name = 'User Signup'
-
-    ),
+    deduped_signups as (select distinct goals_mduid, goal_name from goals),
 
     visitors_bot_handling as (
 
@@ -94,7 +101,6 @@ with
 
         from signups
 
-        where visitors_country_name = 'United States'
     )
 select *
 from us
