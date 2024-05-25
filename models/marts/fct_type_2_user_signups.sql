@@ -1,7 +1,6 @@
 with visitors as (
 
     select * from {{ ref("stg_md__visitors") }}
-    where visitors_country_name = 'United States'
     
     ),
 
@@ -100,6 +99,7 @@ with visitors as (
             visitors_os_name
 
         from signups
+        where visitors_country_name = 'United States'
 
     )
 select *
