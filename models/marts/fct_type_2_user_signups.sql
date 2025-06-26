@@ -41,7 +41,9 @@ with visitors as (
             visitors.visitors_country_name,
             visitors.visitors_mduid,
             visitors.visitors_browser,
-            visitors.visitors_gclid_flag
+            visitors.visitors_gclid_flag,
+            visitors.created_at,
+            visitors.updated_at
 
         from visitors
 
@@ -96,7 +98,9 @@ with visitors as (
             goal_name,
             visitors_region,
             visitors_browser,
-            visitors_os_name
+            visitors_os_name,
+            created_at,
+            updated_at
 
         from signups
         where visitors_country_name = 'United States'
