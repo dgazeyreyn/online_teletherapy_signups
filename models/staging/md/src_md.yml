@@ -9,13 +9,15 @@ sources:
       - name: log_visitor
         description: Sourced from MD's PostgreSQL DB, written into by our Rails app, and subsequently loaded into BigQuery data warehouse referenced above. When a visitor first visits the site we check for the existence of a cookie called “mdt”. If no such cookie exists then we create a LogVisitor record.
         columns:
-          - name: id
+          - name: visitor_id
             description: Unique to each row
             tests:
               - unique
               - not_null
-          - name: ip
+          - name: visitor_ip_address
             description: An unknown proportion of our traffic will share IP addresses. For example many bots will share an IP address. This means that an individual IP address is not equivalent to an individual user.
+            tests:
+              - not_null
           - name: user_agent
             description: The "user agent" metadata string is a line of text that web browsers send to websites to identify themselves. It contains several key pieces of information about the browser and the operating system it's running on.
           - name: browser_name
@@ -38,49 +40,98 @@ sources:
             description: Parsed from user_agent above
           - name: device_type 
             description: Parsed from user_agent above
+            data_tests:
+              - accepted_values:
+                  arguments:
+                    values: ['mobile', 'wearable', 'console', 'smarttv', 'tablet']
           - name: arch 
             description: Parsed from user_agent above
           - name: geo
             description: We ping a 3rd party service with a user’s IP address which then returns the example Geo data you see here.
+          - name: region
+            description: Parsed from geo above.
+          - name: country_name
+            description: Parsed from geo above.
           - name: mduid
-            description: Anonymized MD visitor id; unique to each row.
+            description: Anonymized MD visitor id; Primary Key.
             tests:
               - unique
               - not_null
           - name: created_at
             description: UTC timezone
+            tests:
+              - not_null
           - name: updated_at
+            tests:
+              - not_null
+              - dbt_utils.expression_is_true:
+                  arguments:
+                    expression: "updated_at >= created_at"
             description: UTC timezone
           - name: inbound_params
             description: '{{ doc("log_visitor") }}'
+          - name: browser
+            description: Parsed from inbound_params above.
+            data_tests:
+              - accepted_values:
+                  arguments:
+                    values: ['desktop_web', 'mobile_web']
+          - name: gclid_flag
+            description: Parsed from inbound_params above.
       - name: log_tests
         description: Sourced from MD's PostgreSQL DB, written into by our Rails app, and subsequently loaded into BigQuery data warehouse referenced above. We log each test started, appending with additional data if completed.
         columns:
-          - name: id
-            description: Unique to each row.
+          - name: test_id
+            description: Primary Key.
             tests:
               - unique
               - not_null
           - name: test_taken
             description: We also assign each test a number which is given by test_taken_id.
+            tests:
+              - not_null
           - name: duration
             description: Seconds
+            tests:
+              - not_null
+              - dbt_utils.expression_is_true:
+                  arguments:
+                    expression: "duration >= 0"
           - name: completed
             description: If “False” then no duration will be present.
+            data_tests:
+              - not_null
+              - accepted_values:
+                  arguments:
+                    values: ['true', 'false']
           - name: result
             description: Score from test
-          - name: ip_address
+          - name: test_ip_address
             description: We do not record an MDUID within the Log Test data so attribution to a specific user will have to be done via the IP address.
+            data_tests:
+              - not_null
           - name: user_agent
             description: Note - The values here differ from the User Agent value in the Log Visitor table.
           - name: channel
             description: No description
+            data_tests:
+              - not_null
+              - accepted_values:
+                  arguments:
+                    values: ['web', 'mobile web', 'mobile']
           - name: geo
             description: We ping a 3rd party service with a user’s IP address which then returns the example Geo data you see here.
           - name: created_at
             description: UTC timezone
+            tests:
+              - not_null
           - name: updated_at
             description: UTC timezone
+            tests:
+              - not_null
+              - dbt_utils.expression_is_true:
+                  arguments:
+                    expression: "updated_at >= created_at"
           - name: uniq_id
             description: No description
           - name: city
@@ -117,5 +168,12 @@ sources:
             description: Individual fields for parsed out Geo Data.
           - name: test_taken_id
             description: Test number in our backend systems.
+            tests:
+              - not_null
           - name: site_id
             description: Site number corresponds to whether it is the main MD site (0), RD, FM, or PM.
+            data_tests:
+              - not_null
+              - accepted_values:
+                  arguments:
+                    values: [0, 1, 2, 4]

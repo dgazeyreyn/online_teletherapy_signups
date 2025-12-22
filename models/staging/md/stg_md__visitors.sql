@@ -5,8 +5,8 @@ with
 
         select
 
-            id,
-            ip,
+            id as visitor_id,
+            ip as visitor_ip_address,
             user_agent,
             browser_name,
             browser_version,
@@ -28,7 +28,7 @@ with
             updated_at,
             inbound_params,
             regexp_extract(inbound_params, r'"browser"=>"([^"]+)"') as browser,
-            contains_substr(inbound_params, 'gclid') as visitors_gclid_flag
+            contains_substr(inbound_params, 'gclid') as gclid_flag
 
         from source
 
@@ -36,3 +36,4 @@ with
 
 select *
 from visitors
+
