@@ -5,18 +5,30 @@ with
 
         select
 
-            id as visitors_id,
-            ip as visitors_ip,
-            os_name as visitors_os_name,
-            split(replace(split(substr(geo, (strpos(geo, 'region'))), ',')[offset (0)],'"',''),'=>'
-            )[safe_offset(1)] as visitors_region,
-            split(replace(split(substr(geo, (strpos(geo, 'country_name'))), ',')[offset (0)],'"',''),'=>'
-            )[safe_offset(1)] as visitors_country_name,
-            mduid as visitors_mduid,
-            split(replace(split(substr(inbound_params, (strpos(inbound_params, 'browser'))), ',')[offset (0)],'"',''),'=>'
-            )[safe_offset(1)] as visitors_browser,
-            contains_substr(inbound_params, 'gclid') as visitors_gclid_flag,
-            *
+            id,
+            ip,
+            user_agent,
+            browser_name,
+            browser_version,
+            browser_major,
+            engine_name,
+            engine_version,
+            os_name,
+            os_version,
+            device_vendor,
+            device_model,
+            device_type,
+            arch,
+            geo,
+            regexp_extract(geo, r'"region"=>"([^"]+)"') as region,
+            regexp_extract(geo, r'"country_name"=>"([^"]+)"') as country_name,
+            -- os_name,
+            mduid as mduid,
+            created_at,
+            updated_at,
+            inbound_params,
+            regexp_extract(inbound_params, r'"browser"=>"([^"]+)"') as browser,
+            contains_substr(inbound_params, 'gclid') as visitors_gclid_flag
 
         from source
 
