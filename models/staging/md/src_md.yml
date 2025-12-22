@@ -11,12 +11,12 @@ sources:
         columns:
           - name: visitor_id
             description: Unique to each row
-            tests:
+            data_tests:
               - unique
               - not_null
           - name: visitor_ip_address
             description: An unknown proportion of our traffic will share IP addresses. For example many bots will share an IP address. This means that an individual IP address is not equivalent to an individual user.
-            tests:
+            data_tests:
               - not_null
           - name: user_agent
             description: The "user agent" metadata string is a line of text that web browsers send to websites to identify themselves. It contains several key pieces of information about the browser and the operating system it's running on.
@@ -54,15 +54,15 @@ sources:
             description: Parsed from geo above.
           - name: mduid
             description: Anonymized MD visitor id; Primary Key.
-            tests:
+            data_tests:
               - unique
               - not_null
           - name: created_at
             description: UTC timezone
-            tests:
+            data_tests:
               - not_null
           - name: updated_at
-            tests:
+            data_tests:
               - not_null
               - dbt_utils.expression_is_true:
                   arguments:
@@ -83,16 +83,16 @@ sources:
         columns:
           - name: test_id
             description: Primary Key.
-            tests:
+            data_tests:
               - unique
               - not_null
           - name: test_taken
             description: We also assign each test a number which is given by test_taken_id.
-            tests:
+            data_tests:
               - not_null
           - name: duration
             description: Seconds
-            tests:
+            data_tests:
               - not_null
               - dbt_utils.expression_is_true:
                   arguments:
@@ -123,11 +123,11 @@ sources:
             description: We ping a 3rd party service with a user’s IP address which then returns the example Geo data you see here.
           - name: created_at
             description: UTC timezone
-            tests:
+            data_tests:
               - not_null
           - name: updated_at
             description: UTC timezone
-            tests:
+            data_tests:
               - not_null
               - dbt_utils.expression_is_true:
                   arguments:
@@ -168,7 +168,7 @@ sources:
             description: Individual fields for parsed out Geo Data.
           - name: test_taken_id
             description: Test number in our backend systems.
-            tests:
+            data_tests:
               - not_null
           - name: site_id
             description: Site number corresponds to whether it is the main MD site (0), RD, FM, or PM.
