@@ -18,19 +18,6 @@ sources:
             description: An unknown proportion of our traffic will share IP addresses. For example many bots will share an IP address. This means that an individual IP address is not equivalent to an individual user.
           - name: user_agent
             description: The "user agent" metadata string is a line of text that web browsers send to websites to identify themselves. It contains several key pieces of information about the browser and the operating system it's running on.
-          - name: geo
-            description: We ping a 3rd party service with a user’s IP address which then returns the example Geo data you see here.
-          - name: mduid
-            description: Anonymized MD visitor id; unique to each row.
-            tests:
-              - unique
-              - not_null
-          - name: created_at
-            description: UTC timezone
-          - name: updated_at
-            description: UTC timezone
-          - name: inbound_params
-            description: '{{ doc("log_visitor") }}'
           - name: browser_name
             description: Parsed from user_agent above
           - name: browser_version
@@ -53,6 +40,19 @@ sources:
             description: Parsed from user_agent above
           - name: arch 
             description: Parsed from user_agent above
+          - name: geo
+            description: We ping a 3rd party service with a user’s IP address which then returns the example Geo data you see here.
+          - name: mduid
+            description: Anonymized MD visitor id; unique to each row.
+            tests:
+              - unique
+              - not_null
+          - name: created_at
+            description: UTC timezone
+          - name: updated_at
+            description: UTC timezone
+          - name: inbound_params
+            description: '{{ doc("log_visitor") }}'
       - name: log_tests
         description: Sourced from MD's PostgreSQL DB, written into by our Rails app, and subsequently loaded into BigQuery data warehouse referenced above. We log each test started, appending with additional data if completed.
         columns:
