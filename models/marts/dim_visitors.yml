@@ -1,0 +1,31 @@
+models:
+  - name: dim_visitors
+    description: >
+      Conformed visitor dimension representing a unique human visitor,
+      identified by mduid after bot-handling logic has been applied.
+
+    columns:
+      - name: visitor_key
+        description: Surrogate primary key for the visitor dimension.
+        tests:
+          - not_null
+          - unique
+
+      - name: mduid
+        description: Natural business key identifying a unique visitor.
+        tests:
+          - not_null
+          - unique
+
+      - name: visitor_ip
+        description: IP address associated with the visitor.
+
+      - name: first_seen_at_utc
+        description: Timestamp of the visitor’s first observed visit (UTC).
+        tests:
+          - not_null
+
+      - name: last_seen_at_utc
+        description: Timestamp of the visitor’s most recent observed visit (UTC).
+        tests:
+          - not_null
