@@ -1,4 +1,4 @@
-with visitors as (select * from {{ ref("int_visitors_one_2_one_relationship") }})
+with visitors as (select * from {{ ref("int_visitors_resolved") }})
 
 select
     {{ dbt_utils.generate_surrogate_key(["mduid"]) }} as visitor_key,

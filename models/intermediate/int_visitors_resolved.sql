@@ -9,7 +9,7 @@ with
         having count(distinct mduid) = 1
     ),
 
-    deduped as (
+    resolved as (
 
         select v.*
         from visitors_raw v
@@ -17,4 +17,4 @@ with
     )
 
 select *
-from deduped
+from resolved
