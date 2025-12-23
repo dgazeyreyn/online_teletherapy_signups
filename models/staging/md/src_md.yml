@@ -9,12 +9,12 @@ sources:
       - name: log_visitor
         description: Sourced from MD's PostgreSQL DB, written into by our Rails app, and subsequently loaded into BigQuery data warehouse referenced above. When a visitor first visits the site we check for the existence of a cookie called “mdt”. If no such cookie exists then we create a LogVisitor record.
         columns:
-          - name: visitor_id
+          - name: id
             description: Unique to each row
             data_tests:
               - unique
               - not_null
-          - name: visitor_ip_address
+          - name: ip_address
             description: An unknown proportion of our traffic will share IP addresses. For example many bots will share an IP address. This means that an individual IP address is not equivalent to an individual user.
             data_tests:
               - not_null
@@ -62,12 +62,12 @@ sources:
             data_tests:
               - not_null
           - name: updated_at
+            description: UTC timezone
             data_tests:
               - not_null
               - dbt_utils.expression_is_true:
                   arguments:
                     expression: "updated_at >= created_at"
-            description: UTC timezone
           - name: inbound_params
             description: '{{ doc("log_visitor") }}'
           - name: browser
@@ -81,7 +81,7 @@ sources:
       - name: log_tests
         description: Sourced from MD's PostgreSQL DB, written into by our Rails app, and subsequently loaded into BigQuery data warehouse referenced above. We log each test started, appending with additional data if completed.
         columns:
-          - name: test_id
+          - name: id
             description: Primary Key.
             data_tests:
               - unique
@@ -106,7 +106,7 @@ sources:
                     values: ['true', 'false']
           - name: result
             description: Score from test
-          - name: test_ip_address
+          - name: ip_address
             description: We do not record an MDUID within the Log Test data so attribution to a specific user will have to be done via the IP address.
             data_tests:
               - not_null

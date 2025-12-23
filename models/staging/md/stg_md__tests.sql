@@ -4,12 +4,12 @@ with
     tests as (
 
         select
-            id as test_id,
+            id,
             test_taken,
             duration,
             completed,
             result,
-            ip_address as test_ip_address,
+            ip_address,
             user_agent,
             channel,
             geo,

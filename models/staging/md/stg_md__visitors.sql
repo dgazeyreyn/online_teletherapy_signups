@@ -5,8 +5,8 @@ with
 
         select
 
-            id as visitor_id,
-            ip as visitor_ip_address,
+            id,
+            ip as ip_address,
             user_agent,
             browser_name,
             browser_version,
@@ -23,7 +23,7 @@ with
             regexp_extract(geo, r'"region"=>"([^"]+)"') as region,
             regexp_extract(geo, r'"country_name"=>"([^"]+)"') as country_name,
             -- os_name,
-            mduid as mduid,
+            mduid,
             created_at,
             updated_at,
             inbound_params,
