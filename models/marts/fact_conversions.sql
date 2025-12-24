@@ -46,7 +46,3 @@ with
 
 select *
 from final
-where
-    conversion_key
-    in (select conversion_key from final group by 1 having count(*) > 1)
-order by conversion_key

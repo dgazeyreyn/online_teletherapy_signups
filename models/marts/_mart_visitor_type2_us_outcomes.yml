@@ -1,0 +1,55 @@
+version: 2
+
+models:
+  - name: mart_visitor_type2_us_outcomes
+    description: >
+      Visitor-level mart restricted to Type 2 traffic (paid or organic test-taken)
+      for visitors residing in the United States. This model represents the full
+      universe of eligible visitors and carries conversion outcomes (signup and
+      trial) as explicit flags to support conversion rate analysis, EDA, and
+      downstream statistical modeling.
+
+    meta:
+      grain: one row per visitor (visitor_key)
+      traffic_definition: Type 2 (paid OR organic test-taken)
+      geography: United States
+
+    columns:
+      - name: visitor_key
+        description: Surrogate key representing a unique visitor.
+        tests:
+          - not_null
+          - unique
+
+      - name: browser
+        description: Browser family associated with the visitor.
+        tests:
+          - not_null
+
+      - name: os_name
+        description: Operating system associated with the visitor.
+
+      - name: region
+        description: Geographic region/state associated with the visitor.
+        tests:
+          - not_null
+
+      - name: has_signup
+        description: >
+          Boolean indicator for whether the visitor completed a User Signup goal
+          at any point in their lifecycle.
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "in (0, 1)"
+
+      - name: has_trial_conversion
+        description: >
+          Boolean indicator for whether the visitor completed a Trial Converted goal
+          at any point in their lifecycle.
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "in (0, 1)"
