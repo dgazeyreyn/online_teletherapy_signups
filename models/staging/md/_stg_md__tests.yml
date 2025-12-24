@@ -1,0 +1,128 @@
+models:
+  - name: stg_md__tests
+    description: placeholder
+    columns:
+      - name: id
+        description: Primary Key.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: test_taken
+        description: We also assign each test a number which is given by test_taken_id.
+        data_tests:
+          - not_null
+
+      - name: duration
+        description: Seconds
+        data_tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: ">= 0"
+
+      - name: completed
+        description: If “False” then no duration will be present.
+        data_tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "in (true, false)"
+
+      - name: result
+        description: Score from test
+
+      - name: ip_address
+        description: We do not record an MDUID within the Log Test data so attribution to a specific user will have to be done via the IP address.
+        data_tests:
+          - not_null
+
+      - name: user_agent
+        description: Note - The values here differ from the User Agent value in the Log Visitor table.
+
+      - name: channel
+        description: No description
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["web", "mobile web", "mobile"]
+
+      - name: geo
+        description: We ping a 3rd party service with a user’s IP address which then returns the example Geo data you see here.
+
+      - name: created_at
+        description: UTC timezone
+        data_tests:
+          - not_null
+
+      - name: updated_at
+        description: UTC timezone
+        data_tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: ">= created_at"
+
+      - name: uniq_id
+        description: No description
+
+      - name: city
+        description: Derived from geo field.
+
+      - name: region
+        description: Derived from geo field.
+
+      - name: region_code
+        description: Derived from geo field.
+
+      - name: country
+        description: Derived from geo field.
+
+      - name: country_name
+        description: Derived from geo field.
+
+      - name: continent_code
+        description: Derived from geo field.
+
+      - name: postal
+        description: Derived from geo field.
+
+      - name: latitude
+        description: Derived from geo field.
+
+      - name: longitude
+        description: Derived from geo field.
+
+      - name: timezone
+        description: Derived from geo field.
+
+      - name: utc_offset
+        description: Derived from geo field.
+
+      - name: country_calling_code
+        description: Derived from geo field.
+
+      - name: currency
+        description: Derived from geo field.
+
+      - name: languages
+        description: Derived from geo field.
+
+      - name: asn
+        description: Derived from geo field.
+
+      - name: org
+        description: Derived from geo field.
+
+      - name: test_taken_id
+        description: Test number in our backend systems.
+        data_tests:
+          - not_null
+
+      - name: site_id
+        description: Site number corresponds to whether it is the main MD site (0), RD, FM, or PM.
+        data_tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "in (0, 1, 2, 4)"

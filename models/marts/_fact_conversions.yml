@@ -1,0 +1,25 @@
+models:
+  - name: fact_conversions
+    description: One row per conversion event (signup or trial converted)
+
+    columns:
+      - name: conversion_key
+        data_tests:
+          - not_null
+          - unique
+
+      - name: visitor_key
+        data_tests:
+          - relationships:
+              to: ref('dim_visitors')
+              field: visitor_key
+
+      - name: goal_name
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['User Signup', 'Trial Converted']
+
+      - name: conversion_at_utc
+        data_tests:
+          - not_null

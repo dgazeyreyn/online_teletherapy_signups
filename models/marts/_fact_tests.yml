@@ -1,0 +1,39 @@
+models:
+  - name: fact_tests
+    description: >
+      Fact table representing mental health tests taken by verified human visitors.
+      Visitor identity is resolved via IP address through a bot-cleaned intermediate model.
+
+    columns:
+      - name: id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: visitor_key
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_visitor')
+              field: visitor_key
+
+      - name: test_taken
+        data_tests:
+          - not_null
+
+      - name: duration
+        data_tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: ">= 0"
+
+      - name: completed
+        data_tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "in (true, false)"
+
+      - name: test_taken_at_utc
+        tests:
+          - not_null

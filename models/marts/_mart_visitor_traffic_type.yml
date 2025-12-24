@@ -1,0 +1,47 @@
+version: 2
+
+models:
+  - name: mart_visitor_traffic_type
+    description: >
+      Visitor-level behavioral segmentation that classifies website traffic into
+      mutually exclusive Type 1 (Organic / Direct, No Test) and Type 2
+      (Paid or Organic with Test Taken) traffic. Used for funnel analysis,
+      Tableau reporting, and downstream modeling.
+
+    columns:
+      - name: visitor_key
+        description: Surrogate key for the visitor (FK to dim_visitor)
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              to: ref('dim_visitor')
+              field: visitor_key
+
+      - name: has_test
+        description: >
+          Boolean flag indicating whether the visitor has one or more associated
+          test events in fact_tests
+        data_tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "in (true, false)"
+
+      - name: traffic_type
+        description: >
+          Mutually exclusive traffic classification.
+          type_1 = Organic / Direct traffic with no test taken.
+          type_2 = Paid traffic OR organic traffic with a test taken.
+          unknown = Cases where inbound_params missing or malformed.
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ["type_1", "type_2", "unknown"]
+
+      - name: traffic_type_label
+        description: Human-readable traffic classification for BI tools (e.g. Tableau)
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ["Organic / Direct (No Test)", "Paid or Organic (Test Taken)", "Unknown Attribution"]
