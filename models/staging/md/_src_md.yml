@@ -8,111 +8,125 @@ sources:
     tables:
       - name: log_visitor
         description: Sourced from MD's PostgreSQL DB, written into by our Rails app, and subsequently loaded into BigQuery data warehouse referenced above. When a visitor first visits the site we check for the existence of a cookie called “mdt”. If no such cookie exists then we create a LogVisitor record.
+        
         columns:
           - name: id
             description: Unique to each row
             data_tests:
               - unique
               - not_null
-          - name: ip_address
+          
+          - name: ip
             description: An unknown proportion of our traffic will share IP addresses. For example many bots will share an IP address. This means that an individual IP address is not equivalent to an individual user.
             data_tests:
               - not_null
+          
           - name: user_agent
             description: The "user agent" metadata string is a line of text that web browsers send to websites to identify themselves. It contains several key pieces of information about the browser and the operating system it's running on.
+          
           - name: browser_name
-            description: Parsed from user_agent above
+            description: Derived from user_agent field.
+          
           - name: browser_version
-            description: Parsed from user_agent above
+            description: Derived from user_agent field.
+          
           - name: browser_major 
-            description: Parsed from user_agent above
+            description: Derived from user_agent field.
+          
           - name: engine_name 
-            description: Parsed from user_agent above
+            description: Derived from user_agent field.
+          
           - name: engine_version 
-            description: Parsed from user_agent above
+            description: Derived from user_agent field.
+          
           - name: os_name 
-            description: Parsed from user_agent above
+            description: Derived from user_agent field.
+          
           - name: os_version 
-            description: Parsed from user_agent above
+            description: Derived from user_agent field.
+          
           - name: device_vendor 
-            description: Parsed from user_agent above
+            description: Derived from user_agent field.
+          
           - name: device_model 
-            description: Parsed from user_agent above
+            description: Derived from user_agent field.
+
           - name: device_type 
-            description: Parsed from user_agent above
+            description: Derived from user_agent field.
             data_tests:
               - accepted_values:
                   arguments:
                     values: ['mobile', 'wearable', 'console', 'smarttv', 'tablet']
+          
           - name: arch 
-            description: Parsed from user_agent above
+            description: Derived from user_agent field.
+          
           - name: geo
             description: We ping a 3rd party service with a user’s IP address which then returns the example Geo data you see here.
-          - name: region
-            description: Parsed from geo above.
-          - name: country_name
-            description: Parsed from geo above.
+          
           - name: mduid
             description: Anonymized MD visitor id; Primary Key.
             data_tests:
               - unique
               - not_null
+          
           - name: created_at
             description: UTC timezone
             data_tests:
               - not_null
+          
           - name: updated_at
             description: UTC timezone
             data_tests:
               - not_null
               - dbt_utils.expression_is_true:
                   arguments:
-                    expression: "updated_at >= created_at"
+                    expression: ">= created_at"
+          
           - name: inbound_params
             description: '{{ doc("log_visitor") }}'
-          - name: browser
-            description: Parsed from inbound_params above.
-            data_tests:
-              - accepted_values:
-                  arguments:
-                    values: ['desktop_web', 'mobile_web']
-          - name: gclid_flag
-            description: Parsed from inbound_params above.
+
       - name: log_tests
         description: Sourced from MD's PostgreSQL DB, written into by our Rails app, and subsequently loaded into BigQuery data warehouse referenced above. We log each test started, appending with additional data if completed.
+        
         columns:
           - name: id
             description: Primary Key.
             data_tests:
               - unique
               - not_null
+          
           - name: test_taken
             description: We also assign each test a number which is given by test_taken_id.
             data_tests:
               - not_null
+          
           - name: duration
             description: Seconds
             data_tests:
-              - unique
-              - not_null
               - dbt_utils.expression_is_true:
                   arguments:
-                    expression: "duration >= 0"
+                    expression: ">= 0"
+          
           - name: completed
             description: If “False” then no duration will be present.
             data_tests:
               - not_null
-              - accepted_values:
+              - dbt_utils.expression_is_true:
                   arguments:
-                    values: ['true', 'false']
+                    expression: "in (true, false)"
+          
           - name: result
             description: Score from test
+          
           - name: ip_address
             description: We do not record an MDUID within the Log Test data so attribution to a specific user will have to be done via the IP address.
             data_tests:
               - not_null
+          
           - name: user_agent
             description: Note - The values here differ from the User Agent value in the Log Visitor table.
+          
           - name: channel
             description: No description
             data_tests:
@@ -120,61 +134,83 @@ sources:
               - accepted_values:
                   arguments:
                     values: ['web', 'mobile web', 'mobile']
+          
           - name: geo
             description: We ping a 3rd party service with a user’s IP address which then returns the example Geo data you see here.
+          
           - name: created_at
             description: UTC timezone
             data_tests:
               - not_null
+          
           - name: updated_at
             description: UTC timezone
             data_tests:
               - not_null
               - dbt_utils.expression_is_true:
                   arguments:
-                    expression: "updated_at >= created_at"
+                    expression: ">= created_at"
+          
           - name: uniq_id
             description: No description
+          
           - name: city
-            description: Individual fields for parsed out Geo Data.
+            description: Derived from geo field.
+          
           - name: region
-            description: Individual fields for parsed out Geo Data.
+            description: Derived from geo field.
+          
           - name: region_code
-            description: Individual fields for parsed out Geo Data.
+            description: Derived from geo field.
+          
           - name: country
-            description: Individual fields for parsed out Geo Data.
+            description: Derived from geo field.
+          
           - name: country_name
-            description: Individual fields for parsed out Geo Data.
+            description: Derived from geo field.
+          
           - name: continent_code
-            description: Individual fields for parsed out Geo Data.
+            description: Derived from geo field.
+          
           - name: postal
-            description: Individual fields for parsed out Geo Data.
+            description: Derived from geo field.
+          
           - name: latitude
-            description: Individual fields for parsed out Geo Data.
+            description: Derived from geo field.
+          
           - name: longitude
-            description: Individual fields for parsed out Geo Data.
+            description: Derived from geo field.
+          
           - name: timezone
-            description: Individual fields for parsed out Geo Data.
+            description: Derived from geo field.
+          
           - name: utc_offset
-            description: Individual fields for parsed out Geo Data.
+            description: Derived from geo field.
+          
           - name: country_calling_code
-            description: Individual fields for parsed out Geo Data.
+            description: Derived from geo field.
+          
           - name: currency
-            description: Individual fields for parsed out Geo Data.
+            description: Derived from geo field.
+          
           - name: languages
-            description: Individual fields for parsed out Geo Data.
+            description: Derived from geo field.
+          
           - name: asn
-            description: Individual fields for parsed out Geo Data.
+            description: Derived from geo field.
+          
           - name: org
-            description: Individual fields for parsed out Geo Data.
+            description: Derived from geo field.
+          
           - name: test_taken_id
             description: Test number in our backend systems.
             data_tests:
               - not_null
+          
           - name: site_id
             description: Site number corresponds to whether it is the main MD site (0), RD, FM, or PM.
             data_tests:
               - not_null
-              - accepted_values:
+              - dbt_utils.expression_is_true:
                   arguments:
-                    values: [0, 1, 2, 4]
+                    expression: "in (0, 1, 2, 4)"
