@@ -1,5 +1,5 @@
 with
-    visitors as (select * from {{ ref("int_visitors_resolved") }})
+    visitors as (select * from {{ ref("int_visitors_resolved") }}),
 
     final as (
 
