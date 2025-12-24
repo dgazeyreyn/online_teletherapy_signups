@@ -1,0 +1,93 @@
+models:
+  - name: stg_md__visitors
+    description: Staging model based on goals data source
+    columns:
+      - name: id
+        description: Unique to each row
+        data_tests:
+          - unique
+          - not_null
+
+      - name: ip_address
+        description: An unknown proportion of our traffic will share IP addresses. For example many bots will share an IP address. This means that an individual IP address is not equivalent to an individual user.
+        data_tests:
+          - not_null
+
+      - name: user_agent
+        description: The "user agent" metadata string is a line of text that web browsers send to websites to identify themselves. It contains several key pieces of information about the browser and the operating system it's running on.
+        data_tests:
+          - not_null
+
+      - name: browser_name
+        description: Derived from user_agent field.
+
+      - name: browser_version
+        description: Derived from user_agent field.
+
+      - name: browser_major
+        description: Derived from user_agent field.
+
+      - name: engine_name
+        description: Derived from user_agent field.
+
+      - name: engine_version
+        description: Derived from user_agent field.
+
+      - name: os_name
+        description: Derived from user_agent field.
+
+      - name: os_version
+        description: Derived from user_agent field.
+
+      - name: device_vendor
+        description: Derived from user_agent field.
+
+      - name: device_model
+        description: Derived from user_agent field.
+
+      - name: device_type
+        description: Derived from user_agent field.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["mobile", "wearable", "console", "smarttv", "tablet"]
+
+      - name: arch
+        description: Derived from user_agent field.
+
+      - name: geo
+        description: We ping a 3rd party service with a user’s IP address which then returns the example Geo data you see here.
+
+      - name: region
+        description: Extracted from geo.
+
+      - name: country_name
+        description: Extracted from geo.
+
+      - name: mduid
+        description: Anonymized MD visitor id; Primary Key.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: created_at
+        description: UTC timezone
+        data_tests:
+          - not_null
+
+      - name: updated_at
+        description: UTC timezone
+        data_tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: ">= created_at"
+
+      - name: inbound_params
+        description: '{{ doc("log_visitor") }}'
+
+      - name: browser
+        description: Extracted from inbound_params.
+
+      - name: gclid_flag
+        description: Extracted from inbound_params; boolean flag designating whether gclid exists.
