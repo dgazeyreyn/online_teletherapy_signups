@@ -26,15 +26,21 @@ with
 
         from tests t
         join visitors_resolved vr on t.ip_address = vr.ip_address
+    ),
+
+    final as (
+
+        select
+            twm.id,
+            vd.visitor_key,
+            twm.test_taken,
+            twm.duration,
+            twm.completed,
+            twm.result,
+            twm.test_taken_at_utc
+        from tests_with_mduid twm
+        join visitors_dim vd on twm.mduid = vd.mduid
     )
 
-select
-    twm.id,
-    vd.visitor_key,
-    twm.test_taken,
-    twm.duration,
-    twm.completed,
-    twm.result,
-    twm.test_taken_at_utc
-from tests_with_mduid twm
-join visitors_dim vd on twm.mduid = vd.mduid
+select *
+from final

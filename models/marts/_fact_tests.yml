@@ -25,13 +25,14 @@ models:
         data_tests:
           - dbt_utils.expression_is_true:
               arguments:
-                expression: "duration >= 0"
+                expression: ">= 0"
 
       - name: completed
         data_tests:
-          - accepted_values:
+          - not_null
+          - dbt_utils.expression_is_true:
               arguments:
-                values: ['true', 'false']
+                expression: "in (true, false)"
 
       - name: test_taken_at_utc
         tests:
