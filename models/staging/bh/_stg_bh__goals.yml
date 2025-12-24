@@ -1,6 +1,6 @@
 models:
   - name: stg_bh__goals
-    description: placeholder
+    description: Staging model based on log_visitor data source
     columns:
       - name: goal_id
         description: Surrogate key created based on a combination of 'stat_datetime', 'goal_name', 'stat_ad_id', 'stat_affiliate_info5'.
