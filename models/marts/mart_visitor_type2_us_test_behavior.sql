@@ -26,6 +26,20 @@ with
                 offset(0)
             ] as last_test_taken,
 
+            array_agg(
+                if(t.completed, t.test_taken, null)
+                ignore nulls
+                order by t.test_taken_at_utc asc
+                limit 1
+            )[offset(0)] as first_completed_test_taken,
+
+            array_agg(
+                if(t.completed, t.test_taken, null)
+                ignore nulls
+                order by t.test_taken_at_utc desc
+                limit 1
+            )[offset(0)] as last_completed_test_taken,
+
             -- timing
             min(t.test_taken_at_utc) as first_test_at,
             max(t.test_taken_at_utc) as last_test_at,
@@ -38,7 +52,6 @@ with
         left join tests t on v.visitor_key = t.visitor_key
 
         group by v.visitor_key
-
     ),
 
     final as (
@@ -55,6 +68,8 @@ with
             -- test descriptors
             vt.first_test_taken,
             vt.last_test_taken,
+            vt.first_completed_test_taken,
+            vt.last_completed_test_taken,
 
             -- timestamps
             vt.first_test_at,

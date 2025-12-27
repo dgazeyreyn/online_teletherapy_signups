@@ -12,12 +12,18 @@ models:
       grain: one row per visitor_key
       primary_key: visitor_key
 
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "tests_completed <= tests_started"
+
     columns:
       - name: visitor_key
-        description: Surrogate key for the visitor.
         tests:
           - not_null
           - unique
+          - relationships:
+              to: ref('dim_visitors')
+              field: visitor_key
 
       - name: tests_started
         description: Number of tests initiated by the visitor.
@@ -52,6 +58,23 @@ models:
         tests:
           - not_null:
               where: "tests_started > 0"
+
+      - name: first_completed_test_taken
+        description: >
+          Name of the first test successfully completed by the visitor,
+          ordered by test_taken_at_utc. Null when the visitor did not
+          complete any tests.
+        tests:
+          - not_null:
+              where: "tests_completed > 0"
+
+      - name: last_completed_test_taken
+        description: >
+          Name of the most recent test successfully completed by the visitor.
+          Null when the visitor did not complete any tests.
+        tests:
+          - not_null:
+              where: "tests_completed > 0"
 
       - name: last_test_taken
         description: >
@@ -114,4 +137,3 @@ models:
           - dbt_utils.expression_is_true:
               arguments:
                 expression: "in (true, false)"
-
