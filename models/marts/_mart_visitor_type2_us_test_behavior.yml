@@ -1,0 +1,117 @@
+version: 2
+
+models:
+  - name: mart_visitor_type2_us_test_behavior
+    description: >
+      Visitor-level test behavior mart for Type 2 (Paid or Organic Test-Taken)
+      traffic in the United States. Each row represents a unique visitor and
+      captures test engagement volume, completion behavior, latency to first test,
+      and descriptive attributes of the first and last tests taken.
+
+    meta:
+      grain: one row per visitor_key
+      primary_key: visitor_key
+
+    columns:
+      - name: visitor_key
+        description: Surrogate key for the visitor.
+        tests:
+          - not_null
+          - unique
+
+      - name: tests_started
+        description: Number of tests initiated by the visitor.
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              column_name: tests_started
+              min_value: 0
+
+      - name: tests_completed
+        description: Number of tests completed by the visitor.
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              column_name: tests_completed
+              min_value: 0
+
+      - name: test_completion_rate
+        description: >
+          Proportion of tests completed by the visitor. Calculated as
+          tests_completed / tests_started. Null when no tests were started.
+        tests:
+          - dbt_utils.accepted_range:
+              column_name: test_completion_rate
+              min_value: 0.0
+              max_value: 1.0
+
+      - name: first_test_taken
+        description: >
+          Name of the first test initiated by the visitor, ordered by
+          test_taken_at_utc. Used as a proxy for initial intent.
+        tests:
+          - not_null:
+              where: "tests_started > 0"
+
+      - name: last_test_taken
+        description: >
+          Name of the most recent test initiated by the visitor. Does not
+          necessarily indicate the test taken immediately prior to signup.
+        tests:
+          - not_null:
+              where: "tests_started > 0"
+
+      - name: first_test_at
+        description: Timestamp (UTC) when the visitor first initiated a test.
+        tests:
+          - not_null:
+              where: "tests_started > 0"
+
+      - name: last_test_at
+        description: Timestamp (UTC) when the visitor most recently initiated a test.
+        tests:
+          - not_null:
+              where: "tests_started > 0"
+
+      - name: hours_to_first_test
+        description: >
+          Number of hours between the visitor's first seen timestamp and their
+          first test initiation. Null for visitors with no tests or anomalous
+          negative values.
+        tests:
+          - dbt_utils.accepted_range:
+              column_name: hours_to_first_test
+              min_value: 0
+
+      - name: test_latency_bucket
+        description: >
+          Bucketed representation of time elapsed between first seen and first
+          test initiation.
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - No Test
+                - Test Before First Seen
+                - Immediate
+                - Within 1 Hour
+                - Within 6 Hours
+                - Within 24 Hours
+                - After 24 Hours
+
+      - name: has_test
+        description: Indicates whether the visitor initiated at least one test.
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "in (true, false)"
+
+      - name: has_completed_test
+        description: Indicates whether the visitor completed at least one test.
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "in (true, false)"
+
