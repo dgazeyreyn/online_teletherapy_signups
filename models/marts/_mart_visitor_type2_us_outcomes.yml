@@ -17,13 +17,13 @@ models:
     columns:
       - name: visitor_key
         description: Surrogate key representing a unique visitor.
-        tests:
+        data_tests:
           - not_null
           - unique
 
       - name: browser
         description: Browser family associated with the visitor.
-        tests:
+        data_tests:
           - not_null
 
       - name: os_name
@@ -31,14 +31,14 @@ models:
 
       - name: region
         description: Geographic region/state associated with the visitor.
-        tests:
+        data_tests:
           - not_null
 
       - name: has_signup
         description: >
           Boolean indicator for whether the visitor completed a User Signup goal
           at any point in their lifecycle.
-        tests:
+        data_tests:
           - not_null
           - dbt_utils.expression_is_true:
               arguments:
@@ -48,7 +48,7 @@ models:
         description: >
           Boolean indicator for whether the visitor completed a Trial Converted goal
           at any point in their lifecycle.
-        tests:
+        data_tests:
           - not_null
           - dbt_utils.expression_is_true:
               arguments:

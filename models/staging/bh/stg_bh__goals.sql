@@ -16,9 +16,7 @@ with
                 )
             }} as goal_id,
             stat_datetime as conversion_at_est,
-            timestamp(
-                datetime(stat_datetime), 'America/New_York'
-            ) as conversion_at_utc,
+            timestamp(datetime(stat_datetime), 'America/New_York') as conversion_at_utc,
             goal_name,
             country_name,
             stat_ad_id,

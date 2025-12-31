@@ -44,4 +44,9 @@ models:
         data_tests:
           - not_null
           - accepted_values:
-              values: ["Organic / Direct (No Test)", "Paid or Organic (Test Taken)", "Unknown Attribution"]
+              values:
+                [
+                  "Organic / Direct (No Test)",
+                  "Paid or Organic (Test Taken)",
+                  "Unknown Attribution",
+                ]

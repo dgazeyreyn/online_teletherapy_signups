@@ -22,7 +22,12 @@ with
         select
             {{
                 dbt_utils.generate_surrogate_key(
-                    ["goals.mduid", "goals.goal_name", "goals.conversion_at_utc", "goals.stat_ad_id"]
+                    [
+                        "goals.mduid",
+                        "goals.goal_name",
+                        "goals.conversion_at_utc",
+                        "goals.stat_ad_id",
+                    ]
                 )
             }} as conversion_key,
 

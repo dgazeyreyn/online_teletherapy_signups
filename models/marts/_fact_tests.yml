@@ -35,5 +35,5 @@ models:
                 expression: "in (true, false)"
 
       - name: test_taken_at_utc
-        tests:
+        data_tests:
           - not_null
