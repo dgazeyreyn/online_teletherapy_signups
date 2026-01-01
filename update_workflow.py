@@ -1,0 +1,10 @@
+from pathlib import Path
+p = Path('.github/workflows/deploy-dbt-docs-pages.yml')
+s = p.read_text()
+s = s.replace('my_dbt_project:', 'default:')
+s = s.replace('dbt deps', 'dbt deps --profiles-dir ~/.dbt')
+s = s.replace('dbt compile', 'dbt compile --profiles-dir ~/.dbt')
+s = s.replace('dbt docs generate', 'dbt docs generate --profiles-dir ~/.dbt')
+s = s.replace('actions/upload-pages-artifact@v1', 'actions/upload-pages-artifact@v2')
+p.write_text(s)
+print('Updated', p)
