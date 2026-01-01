@@ -1,0 +1,111 @@
+version: 2
+
+models:
+  - name: mart_visitor_type2_us_test_behavior
+    description: >
+      Visitor-level test behavior mart for Type 2 US traffic.
+      One row per visitor, summarizing pre-signup test activity
+      including volume, completion, timing, and ordering-based descriptors.
+      Designed for Tableau visualization and downstream statistical analysis.
+
+    tests:
+      # Visitor grain enforcement
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - visitor_key
+
+      # Logical consistency: cannot complete more tests than started
+      - dbt_utils.expression_is_true:
+          expression: "tests_completed_count <= tests_taken_count"
+
+    columns:
+      - name: visitor_key
+        description: Surrogate key for visitor
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_visitors')
+              field: visitor_key
+
+      - name: tests_taken_count
+        description: Total number of tests started by the visitor
+        data_tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: ">= 0"
+
+      - name: tests_completed_count
+        description: Total number of tests completed by the visitor
+        data_tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: ">= 0"
+
+      - name: test_completion_rate
+        description: Ratio of completed tests to tests started
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+
+      - name: has_test
+        description: Boolean flag indicating whether the visitor started at least one test
+        data_tests:
+          - not_null
+
+      - name: has_completed_test
+        description: Boolean flag indicating whether the visitor completed at least one test
+        data_tests:
+          - not_null
+
+      - name: first_test_taken
+        description: Test identifier or label for the visitor’s first test
+        data_tests:
+          - not_null:
+              where: "has_test = true"
+
+      - name: last_test_taken
+        description: Test identifier or label for the visitor’s last test
+        data_tests:
+          - not_null:
+              where: "has_test = true"
+
+      - name: first_completed_test_taken
+        description: Test identifier for the first completed test
+        data_tests:
+          - not_null:
+              where: "has_completed_test = true"
+
+      - name: last_completed_test_taken
+        description: Test identifier for the most recent completed test
+        data_tests:
+          - not_null:
+              where: "has_completed_test = true"
+
+      - name: first_test_taken_at_utc
+        description: Timestamp when the visitor first started a test
+        data_tests:
+          - not_null:
+              where: "has_test = true"
+
+      - name: hours_to_first_test
+        description: >
+          Number of hours between visitor first seen timestamp
+          and first test taken. Negative values indicate test events
+          occurring before first_seen_at_utc due to source-system quirks.
+
+      - name: test_latency_bucket
+        description: Categorical bucket describing time to first test
+        data_tests:
+          - accepted_values:
+              values:
+                - No Test
+                - Test Before First Seen
+                - Immediate
+                - Within 1 Hour
+                - Within 6 Hours
+                - Within 24 Hours
+                - After 24 Hours

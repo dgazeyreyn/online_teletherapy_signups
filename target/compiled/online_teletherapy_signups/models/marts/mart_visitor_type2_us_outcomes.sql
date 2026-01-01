@@ -1,7 +1,7 @@
 with
     visitors as (
 
-        select visitor_key, browser, os_name, region, country_name
+        select visitor_key, browser, os_name, region, country_name, first_seen_at_utc
         from `mind-diagnostics-414622`.`dbt_dreynolds`.`dim_visitors`
 
     ),
@@ -34,6 +34,8 @@ with
             v.browser,
             v.os_name,
             v.region,
+            v.country_name,
+            first_seen_at_utc,
 
             coalesce(c.has_signup, 0) as has_signup,
             coalesce(c.has_trial_conversion, 0) as has_trial_conversion
