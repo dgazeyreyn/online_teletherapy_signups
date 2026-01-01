@@ -45,7 +45,7 @@ jobs:
         run: |
           mkdir -p ~/.dbt
           cat > ~/.dbt/profiles.yml <<YML
-          my_dbt_project:
+          default:
             target: prod
             outputs:
               prod:
@@ -66,19 +66,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: dbt deps and compile
+      - name: dbt deps --profiles-dir ~/.dbt and compile
         run: |
-          dbt deps
-          dbt compile
+          dbt deps --profiles-dir ~/.dbt
+          dbt compile --profiles-dir ~/.dbt
 
       - name: Generate dbt docs
-        run: dbt docs generate
+        run: dbt docs generate --profiles-dir ~/.dbt
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v3
 
       - name: Upload artifact for GitHub Pages
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v2
         with:
           path: ./target
 
