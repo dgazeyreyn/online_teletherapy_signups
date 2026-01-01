@@ -1,5 +1,5 @@
-# Build and publish dbt docs (BigQuery) to GitHub Pages using the Pages Actions
-# Triggers on push to main and on manual dispatch (workflow_dispatch).
+# Build and publish dbt docs (BigQuery) to GitHub Pages by committing to gh-pages branch
+# Triggers on push to main
 name: Build and publish dbt docs to GitHub Pages (BigQuery)
 
 on:
@@ -107,13 +107,15 @@ jobs:
           sed -i "0,/<head>/s//&<base href=\"$base\">/" target/index.html
           echo "Inserted base tag into target/index.html"
 
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v3
-
-      - name: Upload artifact for GitHub Pages
-        uses: actions/upload-pages-artifact@v2
+      - name: Deploy to gh-pages branch (fallback using peaceiris/actions-gh-pages@v4)
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: ./target
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./target
+          # optional:
+          # publish_branch: gh-pages
+          # user_name: github-actions[bot]
+          # user_email: 41898282+github-actions[bot]@users.noreply.github.com
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v1
