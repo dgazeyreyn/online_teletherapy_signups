@@ -46,11 +46,11 @@ jobs:
       - name: Export GOOGLE_APPLICATION_CREDENTIALS
         run: echo "GOOGLE_APPLICATION_CREDENTIALS=$HOME/.gcp/gcp-key.json" >> $GITHUB_ENV
 
-      - name: Create dbt profiles.yml (BigQuery service-account)
+      - name: Create dbt profiles.yml (profile name: default)
         run: |
           mkdir -p ~/.dbt
-          cat > ~/.dbt/profiles.yml <<YML
-          my_dbt_project:
+          cat > ~/.dbt/profiles.yml <<'YML'
+          default:
             target: prod
             outputs:
               prod:
@@ -72,7 +72,7 @@ jobs:
             ${{ runner.os }}-pip-
 
       - name: dbt deps
-        run: dbt deps
+        run: dbt deps --profiles-dir ~/.dbt
 
       - name: Optionally run dbt models (if requested)
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.run_models == 'true' }}
@@ -92,6 +92,20 @@ jobs:
           ls -al target || true
           echo "Index file exists:"
           [ -f target/index.html ] && echo "OK: index.html found" || echo "WARN: index.html missing"
+
+      - name: Inject base href for project pages (fix asset path issues)
+        run: |
+          owner=$(echo $GITHUB_REPOSITORY | cut -d'/' -f1)
+          repo=$(echo $GITHUB_REPOSITORY | cut -d'/' -f2)
+          if [ "$repo" = "$owner.github.io" ]; then
+            base="/"
+          else
+            base="/$owner/$repo/"
+          fi
+          echo "Setting base href to: $base"
+          # insert base element after the first <head> tag
+          sed -i "0,/<head>/s//&<base href=\"$base\">/" target/index.html
+          echo "Inserted base tag into target/index.html"
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v3
