@@ -46,22 +46,22 @@ jobs:
       - name: Export GOOGLE_APPLICATION_CREDENTIALS
         run: echo "GOOGLE_APPLICATION_CREDENTIALS=$HOME/.gcp/gcp-key.json" >> $GITHUB_ENV
 
-      - name: Create dbt profiles.yml (profile name: default)
+      - name: "Create dbt profiles.yml (profile name: default)"
         run: |
           mkdir -p ~/.dbt
-          cat > ~/.dbt/profiles.yml <<'YML'
-          default:
-            target: prod
-            outputs:
-              prod:
-                type: bigquery
-                method: service-account
-                project: ${DBT_PROJECT_ID}
-                dataset: ${DBT_DATASET}
-                keyfile: $HOME/.gcp/gcp-key.json
-                threads: 4
-                priority: interactive
-          YML
+          printf '%s\n' \
+            "default:" \
+            "  target: prod" \
+            "  outputs:" \
+            "    prod:" \
+            "      type: bigquery" \
+            "      method: service-account" \
+            "      project: ${DBT_PROJECT_ID}" \
+            "      dataset: ${DBT_DATASET}" \
+            "      keyfile: $HOME/.gcp/gcp-key.json" \
+            "      threads: 4" \
+            "      priority: interactive" \
+            > ~/.dbt/profiles.yml
 
       - name: Cache pip to speed up runs
         uses: actions/cache@v4
