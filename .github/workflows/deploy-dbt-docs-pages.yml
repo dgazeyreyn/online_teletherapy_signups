@@ -1,0 +1,121 @@
+# Build and publish dbt docs (BigQuery) to GitHub Pages by committing to gh-pages branch
+# Triggers on push to main
+name: Build and publish dbt docs to GitHub Pages (BigQuery)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      run_models:
+        description: 'Run dbt models before generating docs (true/false)'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: read
+  pages: write
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    env:
+      DBT_PROJECT_ID: ${{ secrets.DBT_PROJECT_ID }}
+      DBT_DATASET: ${{ secrets.DBT_DATASET }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dbt (BigQuery adapter)
+        run: |
+          python -m pip install --upgrade pip
+          pip install dbt-bigquery
+
+      - name: Write GCP service account key (from secret)
+        run: |
+          mkdir -p $HOME/.gcp
+          echo "${{ secrets.GCP_SA_KEY }}" > $HOME/.gcp/gcp-key.json
+          chmod 600 $HOME/.gcp/gcp-key.json
+
+      - name: Export GOOGLE_APPLICATION_CREDENTIALS
+        run: echo "GOOGLE_APPLICATION_CREDENTIALS=$HOME/.gcp/gcp-key.json" >> $GITHUB_ENV
+
+      - name: "Create dbt profiles.yml (profile name: default)"
+        run: |
+          mkdir -p ~/.dbt
+          printf '%s\n' \
+            "default:" \
+            "  target: prod" \
+            "  outputs:" \
+            "    prod:" \
+            "      type: bigquery" \
+            "      method: service-account" \
+            "      project: ${DBT_PROJECT_ID}" \
+            "      dataset: ${DBT_DATASET}" \
+            "      keyfile: $HOME/.gcp/gcp-key.json" \
+            "      threads: 4" \
+            "      priority: interactive" \
+            > ~/.dbt/profiles.yml
+
+      - name: Cache pip to speed up runs
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: dbt deps
+        run: dbt deps --profiles-dir ~/.dbt
+
+      - name: Optionally run dbt models (if requested)
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.run_models == 'true' }}
+        run: |
+          # Running models requires stronger BigQuery permissions (dataEditor or similar).
+          dbt run --profiles-dir ~/.dbt
+
+      - name: dbt compile
+        run: dbt compile --profiles-dir ~/.dbt
+
+      - name: Generate dbt docs
+        run: dbt docs generate --profiles-dir ~/.dbt
+
+      - name: List generated files for debugging
+        run: |
+          echo "target/ contains:"
+          ls -al target || true
+          echo "Index file exists:"
+          [ -f target/index.html ] && echo "OK: index.html found" || echo "WARN: index.html missing"
+
+      - name: Inject base href for project pages (fix asset path issues)
+        run: |
+          owner=$(echo $GITHUB_REPOSITORY | cut -d'/' -f1)
+          repo=$(echo $GITHUB_REPOSITORY | cut -d'/' -f2)
+          if [ "$repo" = "$owner.github.io" ]; then
+            base="/"
+          else
+            base="/$owner/$repo/"
+          fi
+          echo "Setting base href to: $base"
+          # insert base element after the first <head> tag
+          sed -i "0,/<head>/s//&<base href=\"$base\">/" target/index.html
+          echo "Inserted base tag into target/index.html"
+
+      - name: Deploy to gh-pages branch (fallback using peaceiris/actions-gh-pages@v4)
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./target
+          # optional:
+          # publish_branch: gh-pages
+          # user_name: github-actions[bot]
+          # user_email: 41898282+github-actions[bot]@users.noreply.github.com
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v1
