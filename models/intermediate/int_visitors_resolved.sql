@@ -11,7 +11,15 @@ with
 
     resolved as (
 
-        select v.*
+        select
+            v.mduid,
+            v.ip_address,
+            v.browser,
+            v.os_name,
+            v.country_name,
+            v.region,
+            v.gclid_flag,
+            v.created_at
         from visitors_raw v
         join one_2_one_ips o on v.ip_address = o.ip_address
     )
