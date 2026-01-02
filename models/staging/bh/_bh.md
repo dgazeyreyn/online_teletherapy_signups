@@ -1,9 +1,8 @@
 {% docs bh_Stat_affiliate_info3 %}
-	
-The page or page element that a user clicked to get to BetterHelp. Can be: 
+The page or page element that a user clicked to get to BetterHelp. Can be:
 
 | Stat_affiliate_info3   | definition                                          |
-|------------------------|-----------------------------------------------------|
+| ---------------------- | --------------------------------------------------- |
 | result                 | Results Screen                                      |
 | result_popup           | Popup on Results Screen                             |
 | listing                | Therapist Listing Page                              |

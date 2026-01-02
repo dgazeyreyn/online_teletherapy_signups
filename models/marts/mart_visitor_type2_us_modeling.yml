@@ -1,0 +1,118 @@
+version: 2
+
+models:
+  - name: mart_visitor_type2_us_modeling
+    description: >
+      Final modeling mart for evaluating drivers of user signup behavior
+      among Type 2 US visitors. One row per visitor. Designed to support
+      contingency table analysis, chi-square testing, and logistic regression.
+      Combines descriptive attributes with test engagement, timing, and content
+      features.
+
+    tests:
+      # Enforce visitor grain
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - visitor_key
+
+    columns:
+      - name: visitor_key
+        description: Surrogate key identifying a unique visitor
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_visitors')
+              field: visitor_key
+
+      # --------------------
+      # TARGET VARIABLE
+      # --------------------
+      - name: has_signup
+        description: >
+          Binary indicator of whether the visitor completed a User Signup goal.
+          Target variable for statistical modeling.
+        data_tests:
+          - not_null
+
+      # --------------------
+      # BASELINE FEATURES
+      # --------------------
+      - name: browser
+        description: Browser used by the visitor
+        data_tests:
+          - not_null
+
+      - name: os_name
+        description: Operating system used by the visitor
+
+      - name: region
+        description: US region of the visitor (East, Central, South, West)
+        data_tests:
+          - not_null
+
+      # --------------------
+      # TEST ENGAGEMENT (PRIMARY FEATURE)
+      # --------------------
+      - name: test_engagement_state
+        description: >
+          Categorical representation of the visitor's progression through
+          the test funnel.
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - No Test
+                - Test Started Only
+                - Test Completed
+
+      # --------------------
+      # TEST VOLUME (BUCKETED)
+      # --------------------
+      - name: tests_taken_count_bucket
+        description: Bucketed count of tests started by the visitor
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - "0"
+                - "1"
+                - "2–3"
+                - "4+"
+
+      - name: tests_completed_count_bucket
+        description: Bucketed count of tests completed by the visitor
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - "0"
+                - "1"
+                - "2+"
+
+      # --------------------
+      # TEST TIMING
+      # --------------------
+      - name: test_latency_bucket
+        description: >
+          Categorical bucket describing time between first visit and first
+          test taken.
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - No Test
+                - Test Before First Seen
+                - Immediate
+                - Within 1 Hour
+                - Within 6 Hours
+                - Within 24 Hours
+                - After 24 Hours
+
+      # --------------------
+      # TEST CONTENT (EXPLORATORY)
+      # --------------------
+      - name: first_test_taken
+        description: Identifier or label of the first test taken by the visitor
+
+      - name: first_completed_test_taken
+        description: Identifier or label of the first test completed by the visitor

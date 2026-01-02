@@ -1,0 +1,52 @@
+version: 2
+
+models:
+  - name: int_visitors_resolved
+    description: >
+      Intermediate model that resolves visitors to a one-to-one
+      relationship between ip_address and mduid.
+      Used for bot-handling by excluding IPs associated with multiple mduids.
+      This model represents the clean visitor universe for downstream facts
+      and dimensions.
+
+    tests:
+      # Enforce visitor grain assumptions downstream
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ip_address
+            - mduid
+
+    columns:
+      - name: mduid
+        description: >
+          Anonymous visitor identifier stored in a browser cookie.
+          Guaranteed to be one-to-one with ip_address in this model.
+        tests:
+          - not_null
+
+      - name: ip_address
+        description: >
+          Visitor IP address. Limited to IPs that map to exactly one mduid
+          in the raw source data.
+        tests:
+          - not_null
+
+      - name: created_at
+        description: Timestamp when the visitor record was first created
+        tests:
+          - not_null
+
+      - name: browser
+        description: Extracted from inbound_params
+
+      - name: os_name
+        description: Derived from user_agent field
+
+      - name: country_name
+        description: Extracted from geo
+
+      - name: region
+        description: Extracted from geo
+
+      - name: gclid_flag
+        description: Extracted from inbound_params; boolean flag designating whether gclid exists
