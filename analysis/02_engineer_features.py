@@ -90,6 +90,81 @@ TEST_DOMAIN_MAP = {
 }
 
 # ----------------------------
+# State → Sub-Region Mapping
+# ----------------------------
+
+REGION_SUBREGION_MAP = {
+    # New England
+    'Connecticut' : 'New England',
+    'Maine' : 'New England',
+    'Massachusetts' : 'New England',
+    'New Hampshire' : 'New England',
+    'Rhode Island' : 'New England',
+    'Vermont' : 'New England',
+    
+    # Middle Atlantic
+    'New Jersey' : 'Middle Atlantic',
+    'New York' : 'Middle Atlantic',
+    'Pennsylvania' : 'Middle Atlantic',
+    
+    # East North Central
+    'Indiana' : 'East North Central',
+    'Illinois' : 'East North Central',
+    'Michigan' : 'East North Central',
+    'Ohio' : 'East North Central',
+    'Wisconsin' : 'East North Central',
+    
+    # West North Central
+    'Iowa' : 'West North Central',
+    'Kansas' : 'West North Central',
+    'Minnesota' : 'West North Central',
+    'Missouri' : 'West North Central',
+    'Nebraska' : 'West North Central',
+    'North Dakota' : 'West North Central',
+    'South Dakota' : 'West North Central',
+    
+    # South Atlantic
+    'Delaware' : 'South Atlantic',
+    'District of Columbia' : 'South Atlantic',
+    'Florida' : 'South Atlantic',
+    'Georgia' : 'South Atlantic',
+    'Maryland' : 'South Atlantic',
+    'North Carolina' : 'South Atlantic',
+    'South Carolina' : 'South Atlantic',
+    'Virginia' : 'South Atlantic',
+    'West Virginia' : 'South Atlantic',
+    
+    # East South Central
+    'Alabama' : 'East South Central',
+    'Kentucky' : 'East South Central',
+    'Mississippi' : 'East South Central',
+    'Tennessee' : 'East South Central',
+    
+    # West South Central
+    'Arkansas' : 'West South Central',
+    'Louisiana' : 'West South Central',
+    'Oklahoma' : 'West South Central',
+    'Texas' : 'West South Central',
+    
+    # Mountain
+    'Arizona' : 'Mountain',
+    'Colorado' : 'Mountain',
+    'Idaho' : 'Mountain',
+    'New Mexico' : 'Mountain',
+    'Montana' : 'Mountain',
+    'Utah' : 'Mountain',
+    'Nevada' : 'Mountain',
+    'Wyoming' : 'Mountain',
+    
+    # Pacific
+    'Alaska' : 'Pacific',
+    'California' : 'Pacific',
+    'Hawaii' : 'Pacific',
+    'Oregon' : 'Pacific',
+    'Washington' : 'Pacific'
+}
+
+# ----------------------------
 # Main
 # ----------------------------
 def main():
@@ -121,16 +196,14 @@ def main():
     # Defensive fallbacks
     df["first_test_domain"] = df["first_test_domain"].fillna("No Test")
     df["first_completed_test_domain"] = df["first_completed_test_domain"].fillna("No Completed Test")
+    
+    # ----------------------------
+    # State → Sub-Region Mapping
+    # ----------------------------
+    df["sub_region"] = df["region"].map(REGION_SUBREGION_MAP)
 
-    # ----------------------------
-    # Optional: Drop raw high-cardinality fields
-    # ----------------------------
-    df = df.drop(
-        columns=[
-            "first_test_taken",
-            "first_completed_test_taken"
-        ]
-    )
+    # Defensive fallbacks
+    df["sub_region"] = df["sub_region"].fillna("Unassigned")
 
     # ----------------------------
     # Sanity Checks
@@ -155,6 +228,9 @@ def main():
 
     print("\n First completed test domain distribution:")
     print(df["first_completed_test_domain"].value_counts())
+    
+    print("\n Region to Sub-Region distribution:")
+    print(df["sub_region"].value_counts())
 
 
 if __name__ == "__main__":
