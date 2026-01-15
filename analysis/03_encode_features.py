@@ -1,38 +1,15 @@
-"""
-03_encode_features.py
-
-Purpose:
-- Encode engineered features for statistical modeling
-- Produce a modeling-ready matrix (X) and outcome vector (y)
-- Preserve interpretability via explicit reference categories
-
-Input:
-- data/visitor_features_engineered.parquet
-
-Output:
-- data/model_matrix.parquet
-- data/model_metadata.json
-"""
-
-import pandas as pd
-import json
 from pathlib import Path
+import pandas as pd
 from sklearn.preprocessing import OneHotEncoder
 
 # ----------------------------
 # Config
 # ----------------------------
 INPUT_PATH = Path("data/visitor_features_engineered.parquet")
-OUTPUT_DIR = Path("data")
-OUTPUT_DIR.mkdir(exist_ok=True)
+OUTPUT_PATH = Path("data/model_matrix.parquet")
 
-MODEL_MATRIX_PATH = OUTPUT_DIR / "model_matrix.parquet"
-METADATA_PATH = OUTPUT_DIR / "model_metadata.json"
-
-# ----------------------------
-# Feature Definitions
-# ----------------------------
-TARGET = "has_signup"
+TARGET_COL = "has_signup"
+ID_COL = "visitor_key"
 
 CATEGORICAL_FEATURES = [
     "browser",
@@ -45,7 +22,6 @@ CATEGORICAL_FEATURES = [
     "first_completed_test_domain",
 ]
 
-# Reference categories (baseline)
 REFERENCE_CATEGORIES = {
     "browser": "mobile_web",
     "os_name_clean": "iOS",
@@ -58,80 +34,82 @@ REFERENCE_CATEGORIES = {
 }
 
 # ----------------------------
-# Main
+# Load engineered features
 # ----------------------------
-def main():
-    print(" Loading engineered features...")
-    df = pd.read_parquet(INPUT_PATH)
+df = pd.read_parquet(INPUT_PATH)
 
-    # ----------------------------
-    # Target Vector
-    # ----------------------------
-    y = df[TARGET].astype(int)
+# ----------------------------
+# Basic validation
+# ----------------------------
+assert df[ID_COL].is_unique, "visitor_key must be unique"
+assert set(df[TARGET_COL].dropna().unique()).issubset({True, False})
 
-    # ----------------------------
-    # Categorical Encoding
-    # ----------------------------
-    X_cat = df[CATEGORICAL_FEATURES].copy()
-
-    # Ensure reference categories exist
-    for col, ref in REFERENCE_CATEGORIES.items():
-        if ref not in X_cat[col].astype(str).unique():
-            raise ValueError(f"Reference category '{ref}' not found in column '{col}'")
-
-    encoder = OneHotEncoder(
-        drop="first",
-        sparse_output=False,
-        handle_unknown="ignore"
-    )
-
-    # Set category order explicitly so references are dropped correctly
-    encoder.set_output(transform="pandas")
-
-    for col in CATEGORICAL_FEATURES:
-        categories = (
-            [REFERENCE_CATEGORIES[col]] +
-            sorted(
-                set(X_cat[col].astype(str)) - {REFERENCE_CATEGORIES[col]}
-            )
+for col, ref in REFERENCE_CATEGORIES.items():
+    if ref not in df[col].astype(str).unique():
+        raise ValueError(
+            f"Reference category '{ref}' not found in column '{col}'"
         )
-        X_cat[col] = pd.Categorical(X_cat[col], categories=categories)
 
-    X_encoded = encoder.fit_transform(X_cat)
+# ----------------------------
+# Prepare categorical data
+# ----------------------------
+X_cat = df[CATEGORICAL_FEATURES].astype(str)
 
-    # ----------------------------
-    # Final Model Matrix
-    # ----------------------------
-    X_encoded["has_signup"] = y.values
-    X_encoded["visitor_key"] = df["visitor_key"].values
+# Explicit category ordering (reference first)
+for col in CATEGORICAL_FEATURES:
+    categories = (
+        [REFERENCE_CATEGORIES[col]]
+        + sorted(set(X_cat[col]) - {REFERENCE_CATEGORIES[col]})
+    )
+    X_cat[col] = pd.Categorical(X_cat[col], categories=categories)
 
-    # ----------------------------
-    # Persist Outputs
-    # ----------------------------
-    X_encoded.to_parquet(MODEL_MATRIX_PATH, index=False)
+# ----------------------------
+# One-hot encode (NO dropping)
+# ----------------------------
+encoder = OneHotEncoder(
+    drop=None,
+    sparse_output=False,
+    handle_unknown="ignore"
+)
 
-    metadata = {
-        "target": TARGET,
-        "categorical_features": CATEGORICAL_FEATURES,
-        "reference_categories": REFERENCE_CATEGORIES,
-        "encoded_feature_names": X_encoded.columns.tolist(),
-        "n_rows": len(X_encoded),
-    }
+encoder.set_output(transform="pandas")
+X_encoded = encoder.fit_transform(X_cat)
 
-    with open(METADATA_PATH, "w") as f:
-        json.dump(metadata, f, indent=2)
+# ----------------------------
+# Drop explicit reference columns
+# ----------------------------
+for col, ref in REFERENCE_CATEGORIES.items():
+    ref_col = f"{col}_{ref}"
+    if ref_col in X_encoded.columns:
+        X_encoded = X_encoded.drop(columns=ref_col)
+    else:
+        raise ValueError(
+            f"Expected reference column '{ref_col}' not found in encoded output"
+        )
 
-    print(f" Encoded {len(X_encoded):,} rows")
-    print(f" Saved model matrix → {MODEL_MATRIX_PATH}")
-    print(f" Saved metadata → {METADATA_PATH}")
+# ----------------------------
+# Final model matrix
+# ----------------------------
+model_df = pd.concat(
+    [
+        X_encoded,
+        df[[TARGET_COL, ID_COL]]
+    ],
+    axis=1
+)
 
-    # Diagnostics
-    print("\n Model matrix shape:")
-    print(X_encoded.shape)
+# ----------------------------
+# Final sanity checks
+# ----------------------------
+assert ID_COL in model_df.columns
+assert TARGET_COL in model_df.columns
+assert model_df.isnull().sum().sum() == 0, "Unexpected nulls in model matrix"
 
-    print("\n Sample encoded columns:")
-    print(X_encoded.filter(like="first_test_domain").columns[:10])
+# ----------------------------
+# Persist
+# ----------------------------
+model_df.to_parquet(OUTPUT_PATH, index=False)
 
-
-if __name__ == "__main__":
-    main()
+print("✅ Feature encoding complete")
+print(f"📐 Model matrix shape: {model_df.shape}")
+print(f"📦 Saved to: {OUTPUT_PATH}")
