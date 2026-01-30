@@ -27,29 +27,44 @@ jobs:
           pip install dbt-bigquery==1.10.3
 
       # 4️⃣ Write BigQuery service account key
-      - name: Set up GCP keyfile
+      - name: Write BigQuery service account key
         run: |
-          mkdir -p $HOME/.dbt
-          echo "${{ secrets.GCP_SA_KEY }}" > $HOME/.dbt/bigquery-sa.json
+          mkdir -p /home/runner/.gcp
+          echo '${{ secrets.GCP_SA_KEY }}' > /home/runner/.gcp/gcp-key.json
 
       # 5️⃣ Write dbt profiles.yml
       - name: Set up dbt profiles
         run: |
-          mkdir -p $HOME/.dbt
-          cat <<EOF > $HOME/.dbt/profiles.yml
+          mkdir -p ~/.dbt
+          python - <<'PY'
+          import pathlib, textwrap
+
+          profiles = textwrap.dedent("""\
           default:
             target: dev
             outputs:
               dev:
                 type: bigquery
                 method: service-account
-                project: zi-case-study
-                dataset: dbt_dreynolds
-                location: US
-                keyfile: $HOME/.dbt/bigquery-sa.json
+                project: "mind-diagnostics-414622"
+                dataset: "dbt_dreynolds"
+                location: "US"
+                keyfile: "/home/runner/.gcp/gcp-key.json"
                 threads: 4
                 timeout_seconds: 300
-          EOF
+          """)
+
+          path = pathlib.Path.home() / ".dbt" / "profiles.yml"
+          path.write_text(profiles)
+          print("Wrote", path)
+          PY
+
+          - name: Debug profiles.yml
+            run: |
+              echo "---- ~/.dbt/profiles.yml ----"
+              sed -n '1,120p' ~/.dbt/profiles.yml
+              echo "-----------------------------"
+              ls -ლა /home/runner/.gcp || true
 
       # 6️⃣ Install dbt dependencies
       - name: Install dbt deps
@@ -64,4 +79,3 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: target
-          
