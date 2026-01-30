@@ -35,7 +35,6 @@ with
             v.os_name,
             v.region,
             v.country_name,
-            traffic_type,
             first_seen_at_utc,
 
             coalesce(c.has_signup, 0) as has_signup,

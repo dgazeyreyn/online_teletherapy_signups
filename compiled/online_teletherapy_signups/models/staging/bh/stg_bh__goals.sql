@@ -7,9 +7,7 @@ with
 
             to_hex(md5(cast(coalesce(cast(stat_datetime as string), '_dbt_utils_surrogate_key_null_') || '-' || coalesce(cast(goal_name as string), '_dbt_utils_surrogate_key_null_') || '-' || coalesce(cast(stat_ad_id as string), '_dbt_utils_surrogate_key_null_') || '-' || coalesce(cast(stat_affiliate_info5 as string), '_dbt_utils_surrogate_key_null_') as string))) as goal_id,
             stat_datetime as conversion_at_est,
-            timestamp(
-                datetime(stat_datetime), 'America/New_York'
-            ) as conversion_at_utc,
+            timestamp(datetime(stat_datetime), 'America/New_York') as conversion_at_utc,
             goal_name,
             country_name,
             stat_ad_id,
