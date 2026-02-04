@@ -3,6 +3,7 @@ with
 
         select
             visitor_key,
+            first_seen_at_utc,
 
             -- target variable
             has_signup,
@@ -44,6 +45,7 @@ with
 
         select
             o.visitor_key,
+            o.first_seen_at_utc,
 
             -- 🎯 target
             o.has_signup,
