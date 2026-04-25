@@ -1,7 +1,4 @@
-from google.cloud import bigquery
-import pandas as pd
-from pathlib import Path
-from sklearn.preprocessing import OneHotEncoder
+
 
 # ----------------------------
 # Config
@@ -9,6 +6,10 @@ from sklearn.preprocessing import OneHotEncoder
 PROJECT_ID = "mind-diagnostics-414622"
 DATASET = "dbt_dreynolds"
 TABLE = "mart_visitor_type2_us_modeling"
+from google.cloud import bigquery
+import pandas as pd
+from pathlib import Path
+from sklearn.preprocessing import OneHotEncoder
 
 OUTPUT_DIR = Path("data")
 OUTPUT_DIR.mkdir(exist_ok=True)
