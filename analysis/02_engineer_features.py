@@ -93,7 +93,7 @@ TEST_DOMAIN_MAP = {
 # State → Sub-Region Mapping
 # ----------------------------
 
-REGION_SUBREGION_MAP = {
+STATE_SUBREGION_MAP = {
     # New England
     'Connecticut' : 'New England',
     'Maine' : 'New England',
@@ -165,6 +165,73 @@ REGION_SUBREGION_MAP = {
 }
 
 # ----------------------------
+# State → Region Mapping
+# ----------------------------
+
+STATE_REGION_MAP = {
+    # East
+    'Connecticut' : 'East',
+    'Delaware' : 'East',
+    'District of Columbia' : 'East',
+    'Maine' : 'East',
+    'Maryland' : 'East',
+    'Massachusetts' : 'East',
+    'New Hampshire' : 'East',
+    'New Jersey' : 'East',
+    'New York' : 'East',
+    'Ohio' : 'East',
+    'Pennsylvania' : 'East',
+    'Rhode Island' : 'East',
+    'Vermont' : 'East',
+    'West Virginia' : 'East',
+    
+    # Central
+    'Indiana' : 'Central',
+    'Illinois' : 'Central',
+    'Iowa' : 'Central',
+    'Kansas' : 'Central',
+    'Minnesota' : 'Central',
+    'Michigan' : 'Central',
+    'Missouri' : 'Central',
+    'Nebraska' : 'Central',
+    'North Dakota' : 'Central',
+    'Oklahoma' : 'Central',
+    'South Dakota' : 'Central',
+    'Texas' : 'Central',
+    'Wisconsin' : 'Central',
+    
+    # South
+    'Alabama' : 'South',
+    'Arkansas' : 'South',
+    'Florida' : 'South',
+    'Georgia' : 'South',
+    'Kentucky' : 'South',
+    'Louisiana' : 'South',
+    'Mississippi' : 'South',
+    'North Carolina' : 'South',
+    'South Carolina' : 'South',
+    'Tennessee' : 'South',
+    'Virginia' : 'South',
+    
+    # West
+    'Arizona' : 'West',
+    'California' : 'West',
+    'Colorado' : 'West',
+    'Idaho' : 'West',
+    'New Mexico' : 'West',
+    'Montana' : 'West',
+    'Nevada' : 'West',
+    'Oregon' : 'West',
+    'Utah' : 'West',
+    'Washington' : 'West',
+    'Wyoming' : 'West',
+    
+    # Non-Contiguous
+    'Alaska' : 'Pacific',
+    'Hawaii' : 'Pacific'
+}
+
+# ----------------------------
 # Main
 # ----------------------------
 def main():
@@ -200,10 +267,18 @@ def main():
     # ----------------------------
     # State → Sub-Region Mapping
     # ----------------------------
-    df["sub_region"] = df["region"].map(REGION_SUBREGION_MAP)
+    df["sub_region"] = df["region"].map(STATE_SUBREGION_MAP)
 
     # Defensive fallbacks
     df["sub_region"] = df["sub_region"].fillna("Unassigned")
+    
+    # ----------------------------
+    # State → Region Mapping
+    # ----------------------------
+    df["regional"] = df["sub_region"].map(STATE_REGION_MAP)
+
+    # Defensive fallbacks
+    df["regional"] = df["regional"].fillna("Unassigned")
 
     # ----------------------------
     # Sanity Checks
@@ -229,8 +304,11 @@ def main():
     print("\n First completed test domain distribution:")
     print(df["first_completed_test_domain"].value_counts())
     
-    print("\n Region to Sub-Region distribution:")
+    print("\n State to Sub-Region distribution:")
     print(df["sub_region"].value_counts())
+    
+    print("\n State to Region distribution:")
+    print(df["regional"].value_counts())
 
 
 if __name__ == "__main__":
