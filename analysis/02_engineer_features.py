@@ -21,7 +21,7 @@ from pathlib import Path
 # Config
 # ----------------------------
 INPUT_PATH = Path("data/visitor_features.parquet")
-OUTPUT_PATH = Path("data/visitor_features_engineered.parquet")
+OUTPUT_PATH = Path("data/visitor_features_engineered.csv")
 
 # ----------------------------
 # Test → Domain Mapping
@@ -227,8 +227,8 @@ STATE_REGION_MAP = {
     'Wyoming' : 'West',
     
     # Non-Contiguous
-    'Alaska' : 'Pacific',
-    'Hawaii' : 'Pacific'
+    'Alaska' : 'Non-Contiguous',
+    'Hawaii' : 'Non-Contiguous'
 }
 
 # ----------------------------
@@ -275,7 +275,7 @@ def main():
     # ----------------------------
     # State → Region Mapping
     # ----------------------------
-    df["regional"] = df["sub_region"].map(STATE_REGION_MAP)
+    df["regional"] = df["region"].map(STATE_REGION_MAP)
 
     # Defensive fallbacks
     df["regional"] = df["regional"].fillna("Unassigned")
@@ -289,7 +289,7 @@ def main():
     # ----------------------------
     # Persist
     # ----------------------------
-    df.to_parquet(OUTPUT_PATH, index=False)
+    df.to_csv(OUTPUT_PATH, index=False)
 
     print(f"Engineered {len(df):,} rows")
     print(f"Saved to {OUTPUT_PATH}")
