@@ -23,6 +23,7 @@ def load_features():
     query = f"""
     SELECT
         visitor_key,
+        first_seen_at_utc,
         
         -- descriptive attributes
         browser,
