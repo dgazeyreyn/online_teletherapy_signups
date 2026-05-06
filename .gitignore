@@ -5,3 +5,6 @@ dbt_packages/
 logs/
 data/
 .DS_Store
+analysis/20_customer_journey.ipynb
+analysis/21_test_abandonment_domain.ipynb
+analysis/22_test_abandonment_ranked_bar.ipynb
