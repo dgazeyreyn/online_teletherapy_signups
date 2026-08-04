@@ -33,10 +33,6 @@ jobs:
           which dbt
           dbt --version
 
-      - name: Check dbt version
-        run: |
-          python -m dbt --version
-
       # 4️⃣ Write BigQuery service account key
       - name: Write BigQuery service account key
         run: |
@@ -83,7 +79,7 @@ jobs:
 
       # 7️⃣ Generate dbt docs
       - name: Generate dbt docs
-        run: dbt docs generate
+        run: dbt docs generate --profiles-dir ~/.dbt
 
       - name: Verify dbt output
         run: |
