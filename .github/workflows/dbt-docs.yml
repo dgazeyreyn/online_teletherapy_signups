@@ -77,6 +77,12 @@ jobs:
       - name: Generate dbt docs
         run: dbt docs generate
 
+      - name: Verify dbt output
+        run: |
+          pwd
+          ls -la
+          ls -la target || true
+
       - name: Fix GitHub Pages base path
         run: |
           OWNER=$(echo $GITHUB_REPOSITORY | cut -d'/' -f1)
@@ -86,7 +92,7 @@ jobs:
 
           echo "Injecting base href: $BASE"
 
-          sed -i "0,/<head>/s|<head>|<head><base href=\"$BASE\">|" target/index.html
+          sed -i "0,/<head>/s|<head>|<head><base href=\"$BASE\">|" index.html
 
           touch target/.nojekyll
 
