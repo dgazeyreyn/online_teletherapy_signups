@@ -92,7 +92,7 @@ jobs:
 
           echo "Injecting base href: $BASE"
 
-          sed -i "0,/<head>/s|<head>|<head><base href=\"$BASE\">|" index.html
+          sed -i "0,/<head>/s|<head>|<head><base href=\"$BASE\">|" target/index.html
 
           touch target/.nojekyll
 
