@@ -30,6 +30,11 @@ jobs:
 
       - name: Check dbt version
         run: |
+          which dbt
+          dbt --version
+
+      - name: Check dbt version
+        run: |
           python -m dbt --version
 
       # 4️⃣ Write BigQuery service account key
