@@ -89,17 +89,9 @@ jobs:
 
       - name: Fix GitHub Pages base path
         run: |
-          OWNER=$(echo $GITHUB_REPOSITORY | cut -d'/' -f1)
-          REPO=$(echo $GITHUB_REPOSITORY | cut -d'/' -f2)
-
-          BASE="/$OWNER/$REPO/"
-
-          echo "Injecting base href: $BASE"
-
-          sed -i "0,/<head>/s|<head>|<head><base href=\"$BASE\">|" target/index.html
 
           touch target/.nojekyll
-          
+
       - name: Verify deployment contents
         run: |
           echo "=== target ==="
