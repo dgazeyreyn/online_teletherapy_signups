@@ -99,6 +99,19 @@ jobs:
           sed -i "0,/<head>/s|<head>|<head><base href=\"$BASE\">|" target/index.html
 
           touch target/.nojekyll
+          
+      - name: Verify deployment contents
+        run: |
+          echo "=== target ==="
+          ls -la target
+
+          echo
+          echo "=== index.html contains base tag? ==="
+          grep -n "<base" target/index.html || true
+
+          echo
+          echo "=== first 20 lines of index.html ==="
+          head -20 target/index.html
 
       - name: Deploy docs to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
