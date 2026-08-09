@@ -87,9 +87,31 @@ jobs:
           echo "=== first 20 lines of index.html ==="
           head -20 target/index.html
 
+      # - name: Deploy docs to GitHub Pages
+      #   uses: peaceiris/actions-gh-pages@v3
+      #   with:
+      #     github_token:
+      #     publish_dir: target
+      #     publish_branch: gh-pages
+
+      - name: Build published site
+        run: |
+          mkdir site
+
+          # Copy landing page
+          cp index.html site/
+
+          # Copy dbt docs under a subdirectory
+          mkdir site/dbt-docs
+          cp -R target/* site/dbt-docs/
+
+          # Prevent GitHub Pages from processing dbt assets
+          touch site/.nojekyll
+
       - name: Deploy docs to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: target
+          publish_dir: ./site
           publish_branch: gh-pages
+          
